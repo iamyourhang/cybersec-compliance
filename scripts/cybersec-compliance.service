@@ -1,0 +1,26 @@
+[Unit]
+Description=网安合规助手调度器
+Documentation=https://github.com/yourorg/cybersec-compliance
+After=network.target postgresql.service docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/cybersec-compliance
+Environment=PYTHONPATH=/opt/cybersec-compliance
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/cybersec-compliance/.venv/bin/python scheduler/main.py
+Restart=on-failure
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cybersec-compliance
+
+# 资源限制
+LimitNOFILE=65536
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

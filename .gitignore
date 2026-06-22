@@ -1,0 +1,58 @@
+# 环境配置（含 API Key / 密码 / webhook，绝对不提交）
+config/.env
+config/.env.*
+config/*.env
+config/*.env.*
+.env
+.env.*
+*.env
+*.env.*
+!config/.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.bak
+*.bak*
+*.egg-info/
+.eggs/
+dist/
+build/
+*.so
+.venv/
+venv/
+env/
+
+# 日志
+logs/
+*.log
+
+# 运行态数据、上传文件、补源工件
+local_artifacts/
+uploads/
+reports/
+outputs/
+output/
+cleanup_reports/
+tmp/
+temp/
+*.xlsx
+*.xlsx.tmp
+*.csv.tmp
+*.jsonl.tmp
+*.tgz
+*.tar.gz
+*.zip
+
+# 测试覆盖率
+.coverage
+htmlcov/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# macOS
+.DS_Store
