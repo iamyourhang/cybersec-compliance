@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -37,6 +38,14 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).parent.parent
 MIGRATIONS_DIR = BASE_DIR / "database" / "migrations"
 SEEDS_DIR = BASE_DIR / "database" / "seeds"
+
+
+def migration_version(sql_file: Path) -> int:
+    """Return numeric migration version from names like V12__name.sql."""
+    match = re.match(r"V(\d+)__", sql_file.name)
+    if not match:
+        raise ValueError(f"迁移文件命名不合法: {sql_file.name}")
+    return int(match.group(1))
 
 
 def create_database_and_user(
@@ -109,7 +118,7 @@ def execute_sql_file(
 
 def run_migrations(db_dsn: str) -> None:
     """按版本顺序执行迁移文件"""
-    sql_files = sorted(MIGRATIONS_DIR.glob("V*.sql"))
+    sql_files = sorted(MIGRATIONS_DIR.glob("V*.sql"), key=migration_version)
     if not sql_files:
         logger.warning("未找到迁移文件: %s", MIGRATIONS_DIR)
         return
