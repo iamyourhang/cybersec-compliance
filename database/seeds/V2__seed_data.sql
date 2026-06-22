@@ -105,7 +105,7 @@ INSERT INTO compliance_knowledge (
     '{"key_requirements": ["安全设计（Security by Design）", "漏洞管理义务", "SBOM（软件物料清单）", "强制安全更新支持", "合规声明（DoC）", "CE标志"], "assessment_routes": ["自我评估（默认类别）", "第三方认证（重要/关键类别）"], "important_class": "路由器、防火墙通常属于Class II，需第三方认证"}'::jsonb,
     'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R2847',
     'CRA是欧盟对网络设备影响最重大的法规，2024-10-23正式发布，软件2026-09-11强制，硬件2027-09-01强制',
-    'human', TRUE, 98
+    'seed', FALSE, 98
 ),
 
 -- 欧盟 RED（无线电设备指令）网络安全委托法规
@@ -126,7 +126,7 @@ INSERT INTO compliance_knowledge (
     '{"articles": ["Article 3(3)(d): 不损害网络", "Article 3(3)(e): 保护个人数据", "Article 3(3)(f): 防欺诈"]}'::jsonb,
     'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R0030',
     '2025-08-01强制生效，与CRA存在过渡期协调安排',
-    'human', TRUE, 97
+    'seed', FALSE, 97
 ),
 
 -- EUCC 认证
@@ -147,7 +147,7 @@ INSERT INTO compliance_knowledge (
     '{"assurance_levels": ["AVA_VAN.1 (Basic)", "AVA_VAN.3 (Substantial)", "AVA_VAN.5 (High)"], "process": ["申请认证机构", "提交安全目标(ST)", "实验室评估", "机构认可", "颁发证书"]}'::jsonb,
     'https://www.enisa.europa.eu/topics/eucc',
     'EUCC是欧盟首个正式发布的网络安全认证方案，部分CRA高风险产品可能强制要求',
-    'human', TRUE, 96
+    'seed', FALSE, 96
 ),
 
 -- 美国 FCC Cyber Trust Mark
@@ -168,7 +168,7 @@ INSERT INTO compliance_knowledge (
     '{"requirements": ["唯一标识符", "默认安全配置", "数据保护", "安全更新支持", "漏洞报告机制", "加密通信"], "label": "U.S. Cyber Trust Mark + QR码"}'::jsonb,
     'https://www.fcc.gov/cybersecurity-certification-mark',
     '2024年正式启动，目前自愿，未来可能部分强制。通过授权标签机构申请。',
-    'human', TRUE, 95
+    'seed', FALSE, 95
 ),
 
 -- 英国 PSTI Act
@@ -189,7 +189,7 @@ INSERT INTO compliance_knowledge (
     '{"mandatory_requirements": ["禁止通用默认密码", "提供漏洞报告联系方式", "明确最低安全更新支持期限"], "compliance": "合规声明（Statement of Compliance）"}'::jsonb,
     'https://www.legislation.gov.uk/ukpga/2022/46',
     '2024-04-29已强制生效，违规最高罚款1000万英镑或全球营业额4%',
-    'human', TRUE, 98
+    'seed', FALSE, 98
 ),
 
 -- 中国 网络关键设备安全认证
@@ -210,7 +210,7 @@ INSERT INTO compliance_knowledge (
     '{"key_equipment": ["路由器（核心/汇聚）", "交换机（核心/汇聚）", "服务器", "PLC"], "security_products": ["防火墙", "WAF", "IPS", "VPN"], "process": ["申请CCRC认证", "提交技术文件", "实验室测试", "工厂审查", "颁发证书"]}'::jsonb,
     'https://www.ccrc.org.cn/',
     '国内销售强制要求，非出口要求。出口到中国的设备须获此认证方可入市。',
-    'human', TRUE, 97
+    'seed', FALSE, 97
 ),
 
 -- 中国 等保测评（三级及以上系统使用设备）
@@ -231,7 +231,7 @@ INSERT INTO compliance_knowledge (
     '{"levels": {"level2": "自查为主", "level3": "强制测评，每年1次", "level4": "强制测评，半年1次"}, "scope": "面向系统集成商和最终用户，网络设备需满足等保技术要求"}'::jsonb,
     'https://www.djbh.net/',
     '面向系统集成场景，网络设备厂商须确保产品满足等保技术要求，便于客户通过测评',
-    'human', TRUE, 96
+    'seed', FALSE, 96
 ),
 
 -- 日本 NOTICE（IoT设备安全调查）
@@ -252,7 +252,7 @@ INSERT INTO compliance_knowledge (
     '{"requirements": ["禁止默认弱密码", "强制密码更改", "固件安全更新"], "enforcement": "运营商通知用户，ISP可封锁不合规设备"}'::jsonb,
     'https://notice.go.jp/',
     '日本已明确要求IoT设备禁止默认密码，违规设备被ISP通报',
-    'human', TRUE, 90
+    'seed', FALSE, 90
 ),
 
 -- 韩国 ISMS-P
@@ -273,7 +273,7 @@ INSERT INTO compliance_knowledge (
     '{"mandatory_entities": ["年收入100亿韩元以上ISP", "日活100万以上平台"], "voluntary": "中小企业可自愿申请"}'::jsonb,
     'https://isms.kisa.or.kr/',
     '韩国市场准入重要认证，与产品直接关联的合规要求',
-    'human', TRUE, 90
+    'seed', FALSE, 90
 )
 
 ON CONFLICT DO NOTHING;

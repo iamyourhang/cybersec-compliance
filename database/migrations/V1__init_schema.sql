@@ -165,6 +165,9 @@ CREATE INDEX IF NOT EXISTS idx_ck_products     ON compliance_knowledge USING GIN
 CREATE INDEX IF NOT EXISTS idx_ck_name_trgm    ON compliance_knowledge USING GIN(name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_ck_requirements ON compliance_knowledge USING GIN(requirements);
 CREATE INDEX IF NOT EXISTS idx_ck_updated      ON compliance_knowledge(updated_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ck_seed_unique
+    ON compliance_knowledge(country_code, name)
+    WHERE data_source = 'seed';
 
 -- ============================================================
 -- 知识库条目 ↔ 产品 多对多关联表
@@ -240,12 +243,13 @@ CREATE TABLE IF NOT EXISTS alert_sent_log (
     sent_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     channel         VARCHAR(50) NOT NULL DEFAULT 'feishu',
     success         BOOLEAN NOT NULL DEFAULT TRUE,
-    error_msg       TEXT,
-    UNIQUE (rule_id, record_id, sent_at::DATE)   -- 同一天同一条目同一规则不重复发
+    error_msg       TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_asl_record ON alert_sent_log(record_id);
 CREATE INDEX IF NOT EXISTS idx_asl_sent   ON alert_sent_log(sent_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_asl_rule_record_day
+    ON alert_sent_log(rule_id, record_id, ((sent_at AT TIME ZONE 'UTC')::DATE));
 
 -- ============================================================
 -- API 配置表（动态切换，不改代码）
@@ -337,7 +341,7 @@ END $$;
 CREATE OR REPLACE VIEW v_upcoming_effective AS
 SELECT
     ck.id,
-    ck.name,
+    ck.name::TEXT AS name,
     ck.entry_type,
     ck.country_code,
     c.name_zh AS country_name,
@@ -361,7 +365,7 @@ CREATE OR REPLACE VIEW v_pending_review AS
 SELECT
     cl.id AS log_id,
     cl.record_id,
-    ck.name,
+    ck.name::TEXT AS name,
     ck.country_code,
     c.name_zh AS country_name,
     cl.change_type,

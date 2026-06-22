@@ -18,6 +18,36 @@ CREATE TABLE IF NOT EXISTS jurisdiction_inheritance (
 CREATE INDEX IF NOT EXISTS idx_jurisdiction_inheritance_child
     ON jurisdiction_inheritance(child_code, enabled);
 
+INSERT INTO countries (code, name_zh, name_en, region, priority) VALUES
+    ('AT', '奥地利', 'Austria', '欧洲', 'P3'),
+    ('BE', '比利时', 'Belgium', '欧洲', 'P3'),
+    ('BG', '保加利亚', 'Bulgaria', '欧洲', 'P3'),
+    ('HR', '克罗地亚', 'Croatia', '欧洲', 'P3'),
+    ('CY', '塞浦路斯', 'Cyprus', '欧洲', 'P3'),
+    ('CZ', '捷克', 'Czechia', '欧洲', 'P3'),
+    ('DK', '丹麦', 'Denmark', '欧洲', 'P3'),
+    ('EE', '爱沙尼亚', 'Estonia', '欧洲', 'P3'),
+    ('FI', '芬兰', 'Finland', '欧洲', 'P3'),
+    ('FR', '法国', 'France', '欧洲', 'P3'),
+    ('DE', '德国', 'Germany', '欧洲', 'P3'),
+    ('GR', '希腊', 'Greece', '欧洲', 'P3'),
+    ('HU', '匈牙利', 'Hungary', '欧洲', 'P3'),
+    ('IE', '爱尔兰', 'Ireland', '欧洲', 'P3'),
+    ('IT', '意大利', 'Italy', '欧洲', 'P3'),
+    ('LV', '拉脱维亚', 'Latvia', '欧洲', 'P3'),
+    ('LT', '立陶宛', 'Lithuania', '欧洲', 'P3'),
+    ('LU', '卢森堡', 'Luxembourg', '欧洲', 'P3'),
+    ('MT', '马耳他', 'Malta', '欧洲', 'P3'),
+    ('NL', '荷兰', 'Netherlands', '欧洲', 'P3'),
+    ('PL', '波兰', 'Poland', '欧洲', 'P3'),
+    ('PT', '葡萄牙', 'Portugal', '欧洲', 'P3'),
+    ('RO', '罗马尼亚', 'Romania', '欧洲', 'P3'),
+    ('SK', '斯洛伐克', 'Slovakia', '欧洲', 'P3'),
+    ('SI', '斯洛文尼亚', 'Slovenia', '欧洲', 'P3'),
+    ('ES', '西班牙', 'Spain', '欧洲', 'P3'),
+    ('SE', '瑞典', 'Sweden', '欧洲', 'P3')
+ON CONFLICT (code) DO NOTHING;
+
 INSERT INTO jurisdiction_inheritance (
     parent_code,
     child_code,

@@ -42,6 +42,20 @@ CREATE TABLE IF NOT EXISTS official_source_history (
 CREATE INDEX IF NOT EXISTS idx_official_source_history_source_started
     ON official_source_history(source_id, started_at DESC);
 
+-- 官方源迁移会先于种子数据执行；这里补齐本迁移及后续官方源迁移依赖的最小辖区字典。
+INSERT INTO countries (code, name_zh, name_en, region, priority) VALUES
+    ('EU', '欧盟', 'European Union', '欧洲', 'P1'),
+    ('GB', '英国', 'United Kingdom', '欧洲', 'P1'),
+    ('US', '美国', 'United States', '美洲', 'P1'),
+    ('JP', '日本', 'Japan', '亚太', 'P1'),
+    ('SG', '新加坡', 'Singapore', '东南亚', 'P2'),
+    ('AU', '澳大利亚', 'Australia', '大洋洲', 'P2'),
+    ('CA', '加拿大', 'Canada', '美洲', 'P2'),
+    ('KR', '韩国', 'South Korea', '亚太', 'P1'),
+    ('TW', '中国台湾', 'Taiwan, China', '亚太', 'P3'),
+    ('CN', '中国', 'China', '亚太', 'P1')
+ON CONFLICT (code) DO NOTHING;
+
 INSERT INTO official_sources
     (country_code, name, base_url, list_url, source_type, allowed_domains, entry_type_scope, priority, parser_config)
 VALUES
