@@ -137,11 +137,29 @@ COS_REPORT_PREFIX=reports/
 
 ### 4. 初始化数据库
 
+如果本机没有 PostgreSQL，推荐先用 Docker 启动一个带 `pgvector` 的本地数据库：
+
+```bash
+docker compose up -d postgres
+```
+
+然后把 `config/.env` 中数据库配置设为：
+
+```dotenv
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=cybersec_compliance
+DB_USER=compliance_user
+DB_PASSWORD=change_me
+```
+
 首次建库：
 
 ```bash
-python scripts/init_db.py --superuser postgres --superpass your_postgres_password --seed
+python scripts/init_db.py --superuser postgres --superpass postgres --seed
 ```
+
+如果你使用的是手工安装的 PostgreSQL，把 `--superpass postgres` 改成自己的 PostgreSQL 超级用户密码。
 
 如果数据库和用户已经存在，只执行迁移：
 
