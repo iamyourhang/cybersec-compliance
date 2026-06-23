@@ -167,7 +167,41 @@ python scripts/init_db.py --superuser postgres --superpass postgres --seed
 python scripts/init_db.py --migrate-only
 ```
 
-### 5. 启动后端
+### 5. 导入公共 verified 数据包
+
+仓库自带 `data/public/` 公共数据包，来自生产库的脱敏 verified-only 快照，包含：
+
+- 已核验网络安全法规、认证、标准记录。
+- 官方源白名单、官方原文链接、工件哈希和文档元数据。
+- 结构化规格要求和相关中文译文。
+
+数据包不包含：
+
+- 用户、账号、日志、任务历史。
+- AI Key、飞书 Webhook、COS 密钥。
+- COS 对象 key/URL、原始 PDF/HTML、RAG chunks、embedding。
+- `candidate/suspicious/quarantined` 非正式数据。
+
+初始化数据库后导入：
+
+```bash
+python scripts/import_public_data.py --dir data/public
+```
+
+导入后会自动重建 `review_cases`、`canonical_requirements` 和 `compliance_index` 读模型。原文 PDF/HTML 未随仓库分发，如需 RAG 原文问答，请根据数据里的官方链接重新下载并索引。
+
+当前公共包规模：
+
+```text
+国家/地区：199
+官方源：246
+已核验合规记录：174
+文档元数据：263
+规格要求：1707
+译文：11866
+```
+
+### 6. 启动后端
 
 ```bash
 uvicorn admin.api.main:app --host 0.0.0.0 --port 8080
@@ -179,7 +213,7 @@ uvicorn admin.api.main:app --host 0.0.0.0 --port 8080
 http://localhost:8080/
 ```
 
-### 6. 前端开发模式
+### 7. 前端开发模式
 
 生产模式下 FastAPI 会直接服务 `admin/dist`。如需前端开发：
 

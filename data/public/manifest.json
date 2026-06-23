@@ -1,0 +1,26 @@
+{
+  "files": {
+    "compliance_verified.jsonl": 174,
+    "content_translations.jsonl": 11866,
+    "countries.jsonl": 199,
+    "documents_metadata.jsonl": 263,
+    "jurisdiction_inheritance.jsonl": 27,
+    "official_sources.jsonl": 246,
+    "products.jsonl": 10,
+    "source_artifacts_manifest.jsonl": 3423,
+    "spec_requirements.jsonl": 1707
+  },
+  "generated_at": "2026-06-23T03:49:25.315987+00:00",
+  "policy": {
+    "excluded": [
+      "candidate/suspicious/quarantined records",
+      "users and authentication data",
+      "LLM/API/COS/Feishu credentials",
+      "runtime logs, scheduler history, and agent cases",
+      "raw PDFs/HTML files, COS object keys/URLs, chunks, and embeddings"
+    ],
+    "note": "Documents are exported as metadata only. Re-download source files from official_url/artifact_url before re-indexing.",
+    "scope": "verified-only public cybersecurity compliance records"
+  },
+  "schema_version": 1
+}

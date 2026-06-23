@@ -1,0 +1,199 @@
+{"code": "AD", "enabled": true, "name_en": "Andorra", "name_zh": "安道尔", "priority": "P3", "region": "欧洲"}
+{"code": "AE", "enabled": true, "name_en": "United Arab Emirates", "name_zh": "阿联酋", "priority": "P2", "region": "中东"}
+{"code": "AF", "enabled": true, "name_en": "Afghanistan", "name_zh": "阿富汗", "priority": "P3", "region": "南亚"}
+{"code": "AG", "enabled": true, "name_en": "Antigua and Barbuda", "name_zh": "安提瓜和巴布达", "priority": "P3", "region": "美洲"}
+{"code": "AL", "enabled": true, "name_en": "Albania", "name_zh": "阿尔巴尼亚", "priority": "P3", "region": "欧洲"}
+{"code": "AM", "enabled": true, "name_en": "Armenia", "name_zh": "亚美尼亚", "priority": "P3", "region": "高加索"}
+{"code": "AO", "enabled": true, "name_en": "Angola", "name_zh": "安哥拉", "priority": "P3", "region": "非洲"}
+{"code": "AR", "enabled": true, "name_en": "Argentina", "name_zh": "阿根廷", "priority": "P3", "region": "美洲"}
+{"code": "AT", "enabled": true, "name_en": "Austria", "name_zh": "奥地利", "priority": "P3", "region": "欧洲"}
+{"code": "AU", "enabled": true, "name_en": "Australia", "name_zh": "澳大利亚", "priority": "P2", "region": "大洋洲"}
+{"code": "AZ", "enabled": true, "name_en": "Azerbaijan", "name_zh": "阿塞拜疆", "priority": "P3", "region": "高加索"}
+{"code": "BA", "enabled": true, "name_en": "Bosnia and Herzegovina", "name_zh": "波黑", "priority": "P3", "region": "欧洲"}
+{"code": "BB", "enabled": true, "name_en": "Barbados", "name_zh": "巴巴多斯", "priority": "P3", "region": "美洲"}
+{"code": "BD", "enabled": true, "name_en": "Bangladesh", "name_zh": "孟加拉国", "priority": "P3", "region": "南亚"}
+{"code": "BE", "enabled": true, "name_en": "Belgium", "name_zh": "比利时", "priority": "P3", "region": "欧洲"}
+{"code": "BF", "enabled": true, "name_en": "Burkina Faso", "name_zh": "布基纳法索", "priority": "P3", "region": "非洲"}
+{"code": "BG", "enabled": true, "name_en": "Bulgaria", "name_zh": "保加利亚", "priority": "P3", "region": "欧洲"}
+{"code": "BH", "enabled": true, "name_en": "Bahrain", "name_zh": "巴林", "priority": "P3", "region": "中东"}
+{"code": "BI", "enabled": true, "name_en": "Burundi", "name_zh": "布隆迪", "priority": "P3", "region": "非洲"}
+{"code": "BJ", "enabled": true, "name_en": "Benin", "name_zh": "贝宁", "priority": "P3", "region": "非洲"}
+{"code": "BN", "enabled": true, "name_en": "Brunei Darussalam", "name_zh": "文莱", "priority": "P3", "region": "东南亚"}
+{"code": "BO", "enabled": true, "name_en": "Bolivia", "name_zh": "玻利维亚", "priority": "P3", "region": "美洲"}
+{"code": "BR", "enabled": true, "name_en": "Brazil", "name_zh": "巴西", "priority": "P2", "region": "美洲"}
+{"code": "BS", "enabled": true, "name_en": "Bahamas", "name_zh": "巴哈马", "priority": "P3", "region": "美洲"}
+{"code": "BT", "enabled": true, "name_en": "Bhutan", "name_zh": "不丹", "priority": "P3", "region": "南亚"}
+{"code": "BW", "enabled": true, "name_en": "Botswana", "name_zh": "博茨瓦纳", "priority": "P3", "region": "非洲"}
+{"code": "BY", "enabled": true, "name_en": "Belarus", "name_zh": "白俄罗斯", "priority": "P3", "region": "欧洲"}
+{"code": "BZ", "enabled": true, "name_en": "Belize", "name_zh": "伯利兹", "priority": "P3", "region": "美洲"}
+{"code": "CA", "enabled": true, "name_en": "Canada", "name_zh": "加拿大", "priority": "P2", "region": "美洲"}
+{"code": "CD", "enabled": true, "name_en": "Democratic Republic of the Congo", "name_zh": "刚果（金）", "priority": "P3", "region": "非洲"}
+{"code": "CF", "enabled": true, "name_en": "Central African Republic", "name_zh": "中非", "priority": "P3", "region": "非洲"}
+{"code": "CG", "enabled": true, "name_en": "Republic of the Congo", "name_zh": "刚果（布）", "priority": "P3", "region": "非洲"}
+{"code": "CH", "enabled": true, "name_en": "Switzerland", "name_zh": "瑞士", "priority": "P3", "region": "欧洲"}
+{"code": "CI", "enabled": true, "name_en": "Cote d'Ivoire", "name_zh": "科特迪瓦", "priority": "P3", "region": "非洲"}
+{"code": "CL", "enabled": true, "name_en": "Chile", "name_zh": "智利", "priority": "P3", "region": "美洲"}
+{"code": "CM", "enabled": true, "name_en": "Cameroon", "name_zh": "喀麦隆", "priority": "P3", "region": "非洲"}
+{"code": "CN", "enabled": true, "name_en": "China", "name_zh": "中国", "priority": "P1", "region": "东亚"}
+{"code": "CO", "enabled": true, "name_en": "Colombia", "name_zh": "哥伦比亚", "priority": "P3", "region": "美洲"}
+{"code": "CR", "enabled": true, "name_en": "Costa Rica", "name_zh": "哥斯达黎加", "priority": "P3", "region": "美洲"}
+{"code": "CU", "enabled": true, "name_en": "Cuba", "name_zh": "古巴", "priority": "P3", "region": "美洲"}
+{"code": "CV", "enabled": true, "name_en": "Cabo Verde", "name_zh": "佛得角", "priority": "P3", "region": "非洲"}
+{"code": "CY", "enabled": true, "name_en": "Cyprus", "name_zh": "塞浦路斯", "priority": "P3", "region": "欧洲"}
+{"code": "CZ", "enabled": true, "name_en": "Czechia", "name_zh": "捷克", "priority": "P3", "region": "欧洲"}
+{"code": "DE", "enabled": true, "name_en": "Germany", "name_zh": "德国", "priority": "P3", "region": "欧洲"}
+{"code": "DJ", "enabled": true, "name_en": "Djibouti", "name_zh": "吉布提", "priority": "P3", "region": "非洲"}
+{"code": "DK", "enabled": true, "name_en": "Denmark", "name_zh": "丹麦", "priority": "P3", "region": "欧洲"}
+{"code": "DM", "enabled": true, "name_en": "Dominica", "name_zh": "多米尼克", "priority": "P3", "region": "美洲"}
+{"code": "DO", "enabled": true, "name_en": "Dominican Republic", "name_zh": "多米尼加", "priority": "P3", "region": "美洲"}
+{"code": "DZ", "enabled": true, "name_en": "Algeria", "name_zh": "阿尔及利亚", "priority": "P3", "region": "非洲"}
+{"code": "EC", "enabled": true, "name_en": "Ecuador", "name_zh": "厄瓜多尔", "priority": "P3", "region": "美洲"}
+{"code": "EE", "enabled": true, "name_en": "Estonia", "name_zh": "爱沙尼亚", "priority": "P3", "region": "欧洲"}
+{"code": "EG", "enabled": true, "name_en": "Egypt", "name_zh": "埃及", "priority": "P3", "region": "非洲"}
+{"code": "ER", "enabled": true, "name_en": "Eritrea", "name_zh": "厄立特里亚", "priority": "P3", "region": "非洲"}
+{"code": "ES", "enabled": true, "name_en": "Spain", "name_zh": "西班牙", "priority": "P2", "region": "欧洲"}
+{"code": "ET", "enabled": true, "name_en": "Ethiopia", "name_zh": "埃塞俄比亚", "priority": "P3", "region": "非洲"}
+{"code": "EU", "enabled": true, "name_en": "European Union", "name_zh": "欧盟", "priority": "P1", "region": "欧洲"}
+{"code": "FI", "enabled": true, "name_en": "Finland", "name_zh": "芬兰", "priority": "P3", "region": "欧洲"}
+{"code": "FJ", "enabled": true, "name_en": "Fiji", "name_zh": "斐济", "priority": "P3", "region": "大洋洲"}
+{"code": "FM", "enabled": true, "name_en": "Micronesia", "name_zh": "密克罗尼西亚", "priority": "P3", "region": "大洋洲"}
+{"code": "FR", "enabled": true, "name_en": "France", "name_zh": "法国", "priority": "P3", "region": "欧洲"}
+{"code": "GA", "enabled": true, "name_en": "Gabon", "name_zh": "加蓬", "priority": "P3", "region": "非洲"}
+{"code": "GB", "enabled": true, "name_en": "United Kingdom", "name_zh": "英国", "priority": "P1", "region": "欧洲"}
+{"code": "GD", "enabled": true, "name_en": "Grenada", "name_zh": "格林纳达", "priority": "P3", "region": "美洲"}
+{"code": "GE", "enabled": true, "name_en": "Georgia", "name_zh": "格鲁吉亚", "priority": "P3", "region": "高加索"}
+{"code": "GH", "enabled": true, "name_en": "Ghana", "name_zh": "加纳", "priority": "P3", "region": "非洲"}
+{"code": "GM", "enabled": true, "name_en": "Gambia", "name_zh": "冈比亚", "priority": "P3", "region": "非洲"}
+{"code": "GN", "enabled": true, "name_en": "Guinea", "name_zh": "几内亚", "priority": "P3", "region": "非洲"}
+{"code": "GQ", "enabled": true, "name_en": "Equatorial Guinea", "name_zh": "赤道几内亚", "priority": "P3", "region": "非洲"}
+{"code": "GR", "enabled": true, "name_en": "Greece", "name_zh": "希腊", "priority": "P3", "region": "欧洲"}
+{"code": "GT", "enabled": true, "name_en": "Guatemala", "name_zh": "危地马拉", "priority": "P3", "region": "美洲"}
+{"code": "GW", "enabled": true, "name_en": "Guinea-Bissau", "name_zh": "几内亚比绍", "priority": "P3", "region": "非洲"}
+{"code": "GY", "enabled": true, "name_en": "Guyana", "name_zh": "圭亚那", "priority": "P3", "region": "美洲"}
+{"code": "HK", "enabled": true, "name_en": "Hong Kong", "name_zh": "香港", "priority": "P3", "region": "东亚"}
+{"code": "HN", "enabled": true, "name_en": "Honduras", "name_zh": "洪都拉斯", "priority": "P3", "region": "美洲"}
+{"code": "HR", "enabled": true, "name_en": "Croatia", "name_zh": "克罗地亚", "priority": "P3", "region": "欧洲"}
+{"code": "HT", "enabled": true, "name_en": "Haiti", "name_zh": "海地", "priority": "P3", "region": "美洲"}
+{"code": "HU", "enabled": true, "name_en": "Hungary", "name_zh": "匈牙利", "priority": "P3", "region": "欧洲"}
+{"code": "ID", "enabled": true, "name_en": "Indonesia", "name_zh": "印度尼西亚", "priority": "P2", "region": "东南亚"}
+{"code": "IE", "enabled": true, "name_en": "Ireland", "name_zh": "爱尔兰", "priority": "P3", "region": "欧洲"}
+{"code": "IL", "enabled": true, "name_en": "Israel", "name_zh": "以色列", "priority": "P2", "region": "中东"}
+{"code": "IN", "enabled": true, "name_en": "India", "name_zh": "印度", "priority": "P2", "region": "南亚"}
+{"code": "IQ", "enabled": true, "name_en": "Iraq", "name_zh": "伊拉克", "priority": "P3", "region": "中东"}
+{"code": "IR", "enabled": true, "name_en": "Iran", "name_zh": "伊朗", "priority": "P3", "region": "中东"}
+{"code": "IS", "enabled": true, "name_en": "Iceland", "name_zh": "冰岛", "priority": "P3", "region": "欧洲"}
+{"code": "IT", "enabled": true, "name_en": "Italy", "name_zh": "意大利", "priority": "P3", "region": "欧洲"}
+{"code": "JM", "enabled": true, "name_en": "Jamaica", "name_zh": "牙买加", "priority": "P3", "region": "美洲"}
+{"code": "JO", "enabled": true, "name_en": "Jordan", "name_zh": "约旦", "priority": "P3", "region": "中东"}
+{"code": "JP", "enabled": true, "name_en": "Japan", "name_zh": "日本", "priority": "P1", "region": "东亚"}
+{"code": "KE", "enabled": true, "name_en": "Kenya", "name_zh": "肯尼亚", "priority": "P3", "region": "非洲"}
+{"code": "KG", "enabled": true, "name_en": "Kyrgyzstan", "name_zh": "吉尔吉斯斯坦", "priority": "P3", "region": "中亚"}
+{"code": "KH", "enabled": true, "name_en": "Cambodia", "name_zh": "柬埔寨", "priority": "P3", "region": "东南亚"}
+{"code": "KI", "enabled": true, "name_en": "Kiribati", "name_zh": "基里巴斯", "priority": "P3", "region": "大洋洲"}
+{"code": "KM", "enabled": true, "name_en": "Comoros", "name_zh": "科摩罗", "priority": "P3", "region": "非洲"}
+{"code": "KN", "enabled": true, "name_en": "Saint Kitts and Nevis", "name_zh": "圣基茨和尼维斯", "priority": "P3", "region": "美洲"}
+{"code": "KP", "enabled": true, "name_en": "North Korea", "name_zh": "朝鲜", "priority": "P3", "region": "东亚"}
+{"code": "KR", "enabled": true, "name_en": "South Korea", "name_zh": "韩国", "priority": "P1", "region": "东亚"}
+{"code": "KW", "enabled": true, "name_en": "Kuwait", "name_zh": "科威特", "priority": "P3", "region": "中东"}
+{"code": "KZ", "enabled": true, "name_en": "Kazakhstan", "name_zh": "哈萨克斯坦", "priority": "P3", "region": "中亚"}
+{"code": "LA", "enabled": true, "name_en": "Lao PDR", "name_zh": "老挝", "priority": "P3", "region": "东南亚"}
+{"code": "LB", "enabled": true, "name_en": "Lebanon", "name_zh": "黎巴嫩", "priority": "P3", "region": "中东"}
+{"code": "LC", "enabled": true, "name_en": "Saint Lucia", "name_zh": "圣卢西亚", "priority": "P3", "region": "美洲"}
+{"code": "LI", "enabled": true, "name_en": "Liechtenstein", "name_zh": "列支敦士登", "priority": "P3", "region": "欧洲"}
+{"code": "LK", "enabled": true, "name_en": "Sri Lanka", "name_zh": "斯里兰卡", "priority": "P3", "region": "南亚"}
+{"code": "LR", "enabled": true, "name_en": "Liberia", "name_zh": "利比里亚", "priority": "P3", "region": "非洲"}
+{"code": "LS", "enabled": true, "name_en": "Lesotho", "name_zh": "莱索托", "priority": "P3", "region": "非洲"}
+{"code": "LT", "enabled": true, "name_en": "Lithuania", "name_zh": "立陶宛", "priority": "P3", "region": "欧洲"}
+{"code": "LU", "enabled": true, "name_en": "Luxembourg", "name_zh": "卢森堡", "priority": "P3", "region": "欧洲"}
+{"code": "LV", "enabled": true, "name_en": "Latvia", "name_zh": "拉脱维亚", "priority": "P3", "region": "欧洲"}
+{"code": "LY", "enabled": true, "name_en": "Libya", "name_zh": "利比亚", "priority": "P3", "region": "非洲"}
+{"code": "MA", "enabled": true, "name_en": "Morocco", "name_zh": "摩洛哥", "priority": "P3", "region": "非洲"}
+{"code": "MC", "enabled": true, "name_en": "Monaco", "name_zh": "摩纳哥", "priority": "P3", "region": "欧洲"}
+{"code": "MD", "enabled": true, "name_en": "Moldova", "name_zh": "摩尔多瓦", "priority": "P3", "region": "欧洲"}
+{"code": "ME", "enabled": true, "name_en": "Montenegro", "name_zh": "黑山", "priority": "P3", "region": "欧洲"}
+{"code": "MG", "enabled": true, "name_en": "Madagascar", "name_zh": "马达加斯加", "priority": "P3", "region": "非洲"}
+{"code": "MH", "enabled": true, "name_en": "Marshall Islands", "name_zh": "马绍尔群岛", "priority": "P3", "region": "大洋洲"}
+{"code": "MK", "enabled": true, "name_en": "North Macedonia", "name_zh": "北马其顿", "priority": "P3", "region": "欧洲"}
+{"code": "ML", "enabled": true, "name_en": "Mali", "name_zh": "马里", "priority": "P3", "region": "非洲"}
+{"code": "MM", "enabled": true, "name_en": "Myanmar", "name_zh": "缅甸", "priority": "P3", "region": "东南亚"}
+{"code": "MN", "enabled": true, "name_en": "Mongolia", "name_zh": "蒙古", "priority": "P3", "region": "东亚"}
+{"code": "MR", "enabled": true, "name_en": "Mauritania", "name_zh": "毛里塔尼亚", "priority": "P3", "region": "非洲"}
+{"code": "MT", "enabled": true, "name_en": "Malta", "name_zh": "马耳他", "priority": "P3", "region": "欧洲"}
+{"code": "MU", "enabled": true, "name_en": "Mauritius", "name_zh": "毛里求斯", "priority": "P3", "region": "非洲"}
+{"code": "MV", "enabled": true, "name_en": "Maldives", "name_zh": "马尔代夫", "priority": "P3", "region": "南亚"}
+{"code": "MW", "enabled": true, "name_en": "Malawi", "name_zh": "马拉维", "priority": "P3", "region": "非洲"}
+{"code": "MX", "enabled": true, "name_en": "Mexico", "name_zh": "墨西哥", "priority": "P2", "region": "美洲"}
+{"code": "MY", "enabled": true, "name_en": "Malaysia", "name_zh": "马来西亚", "priority": "P2", "region": "东南亚"}
+{"code": "MZ", "enabled": true, "name_en": "Mozambique", "name_zh": "莫桑比克", "priority": "P3", "region": "非洲"}
+{"code": "NA", "enabled": true, "name_en": "Namibia", "name_zh": "纳米比亚", "priority": "P3", "region": "非洲"}
+{"code": "NE", "enabled": true, "name_en": "Niger", "name_zh": "尼日尔", "priority": "P3", "region": "非洲"}
+{"code": "NG", "enabled": true, "name_en": "Nigeria", "name_zh": "尼日利亚", "priority": "P3", "region": "非洲"}
+{"code": "NI", "enabled": true, "name_en": "Nicaragua", "name_zh": "尼加拉瓜", "priority": "P3", "region": "美洲"}
+{"code": "NL", "enabled": true, "name_en": "Netherlands", "name_zh": "荷兰", "priority": "P3", "region": "欧洲"}
+{"code": "NO", "enabled": true, "name_en": "Norway", "name_zh": "挪威", "priority": "P3", "region": "欧洲"}
+{"code": "NP", "enabled": true, "name_en": "Nepal", "name_zh": "尼泊尔", "priority": "P3", "region": "南亚"}
+{"code": "NR", "enabled": true, "name_en": "Nauru", "name_zh": "瑙鲁", "priority": "P3", "region": "大洋洲"}
+{"code": "NZ", "enabled": true, "name_en": "New Zealand", "name_zh": "新西兰", "priority": "P3", "region": "大洋洲"}
+{"code": "OM", "enabled": true, "name_en": "Oman", "name_zh": "阿曼", "priority": "P3", "region": "中东"}
+{"code": "PA", "enabled": true, "name_en": "Panama", "name_zh": "巴拿马", "priority": "P3", "region": "美洲"}
+{"code": "PE", "enabled": true, "name_en": "Peru", "name_zh": "秘鲁", "priority": "P3", "region": "美洲"}
+{"code": "PG", "enabled": true, "name_en": "Papua New Guinea", "name_zh": "巴布亚新几内亚", "priority": "P3", "region": "大洋洲"}
+{"code": "PH", "enabled": true, "name_en": "Philippines", "name_zh": "菲律宾", "priority": "P3", "region": "东南亚"}
+{"code": "PK", "enabled": true, "name_en": "Pakistan", "name_zh": "巴基斯坦", "priority": "P3", "region": "南亚"}
+{"code": "PL", "enabled": true, "name_en": "Poland", "name_zh": "波兰", "priority": "P3", "region": "欧洲"}
+{"code": "PS", "enabled": true, "name_en": "Palestine", "name_zh": "巴勒斯坦", "priority": "P3", "region": "中东"}
+{"code": "PT", "enabled": true, "name_en": "Portugal", "name_zh": "葡萄牙", "priority": "P3", "region": "欧洲"}
+{"code": "PW", "enabled": true, "name_en": "Palau", "name_zh": "帕劳", "priority": "P3", "region": "大洋洲"}
+{"code": "PY", "enabled": true, "name_en": "Paraguay", "name_zh": "巴拉圭", "priority": "P3", "region": "美洲"}
+{"code": "QA", "enabled": true, "name_en": "Qatar", "name_zh": "卡塔尔", "priority": "P3", "region": "中东"}
+{"code": "RO", "enabled": true, "name_en": "Romania", "name_zh": "罗马尼亚", "priority": "P3", "region": "欧洲"}
+{"code": "RS", "enabled": true, "name_en": "Serbia", "name_zh": "塞尔维亚", "priority": "P3", "region": "欧洲"}
+{"code": "RU", "enabled": true, "name_en": "Russia", "name_zh": "俄罗斯", "priority": "P3", "region": "欧洲"}
+{"code": "RW", "enabled": true, "name_en": "Rwanda", "name_zh": "卢旺达", "priority": "P3", "region": "非洲"}
+{"code": "SA", "enabled": true, "name_en": "Saudi Arabia", "name_zh": "沙特阿拉伯", "priority": "P2", "region": "中东"}
+{"code": "SB", "enabled": true, "name_en": "Solomon Islands", "name_zh": "所罗门群岛", "priority": "P3", "region": "大洋洲"}
+{"code": "SC", "enabled": true, "name_en": "Seychelles", "name_zh": "塞舌尔", "priority": "P3", "region": "非洲"}
+{"code": "SD", "enabled": true, "name_en": "Sudan", "name_zh": "苏丹", "priority": "P3", "region": "非洲"}
+{"code": "SE", "enabled": true, "name_en": "Sweden", "name_zh": "瑞典", "priority": "P3", "region": "欧洲"}
+{"code": "SG", "enabled": true, "name_en": "Singapore", "name_zh": "新加坡", "priority": "P2", "region": "东南亚"}
+{"code": "SI", "enabled": true, "name_en": "Slovenia", "name_zh": "斯洛文尼亚", "priority": "P3", "region": "欧洲"}
+{"code": "SK", "enabled": true, "name_en": "Slovakia", "name_zh": "斯洛伐克", "priority": "P3", "region": "欧洲"}
+{"code": "SL", "enabled": true, "name_en": "Sierra Leone", "name_zh": "塞拉利昂", "priority": "P3", "region": "非洲"}
+{"code": "SM", "enabled": true, "name_en": "San Marino", "name_zh": "圣马力诺", "priority": "P3", "region": "欧洲"}
+{"code": "SN", "enabled": true, "name_en": "Senegal", "name_zh": "塞内加尔", "priority": "P3", "region": "非洲"}
+{"code": "SO", "enabled": true, "name_en": "Somalia", "name_zh": "索马里", "priority": "P3", "region": "非洲"}
+{"code": "SR", "enabled": true, "name_en": "Suriname", "name_zh": "苏里南", "priority": "P3", "region": "美洲"}
+{"code": "SS", "enabled": true, "name_en": "South Sudan", "name_zh": "南苏丹", "priority": "P3", "region": "非洲"}
+{"code": "ST", "enabled": true, "name_en": "Sao Tome and Principe", "name_zh": "圣多美和普林西比", "priority": "P3", "region": "非洲"}
+{"code": "SV", "enabled": true, "name_en": "El Salvador", "name_zh": "萨尔瓦多", "priority": "P3", "region": "美洲"}
+{"code": "SY", "enabled": true, "name_en": "Syria", "name_zh": "叙利亚", "priority": "P3", "region": "中东"}
+{"code": "SZ", "enabled": true, "name_en": "Eswatini", "name_zh": "斯威士兰", "priority": "P3", "region": "非洲"}
+{"code": "TD", "enabled": true, "name_en": "Chad", "name_zh": "乍得", "priority": "P3", "region": "非洲"}
+{"code": "TG", "enabled": true, "name_en": "Togo", "name_zh": "多哥", "priority": "P3", "region": "非洲"}
+{"code": "TH", "enabled": true, "name_en": "Thailand", "name_zh": "泰国", "priority": "P2", "region": "东南亚"}
+{"code": "TJ", "enabled": true, "name_en": "Tajikistan", "name_zh": "塔吉克斯坦", "priority": "P3", "region": "中亚"}
+{"code": "TL", "enabled": true, "name_en": "Timor-Leste", "name_zh": "东帝汶", "priority": "P3", "region": "东南亚"}
+{"code": "TM", "enabled": true, "name_en": "Turkmenistan", "name_zh": "土库曼斯坦", "priority": "P3", "region": "中亚"}
+{"code": "TN", "enabled": true, "name_en": "Tunisia", "name_zh": "突尼斯", "priority": "P3", "region": "非洲"}
+{"code": "TO", "enabled": true, "name_en": "Tonga", "name_zh": "汤加", "priority": "P3", "region": "大洋洲"}
+{"code": "TR", "enabled": true, "name_en": "Turkey", "name_zh": "土耳其", "priority": "P2", "region": "中东"}
+{"code": "TT", "enabled": true, "name_en": "Trinidad and Tobago", "name_zh": "特立尼达和多巴哥", "priority": "P3", "region": "美洲"}
+{"code": "TV", "enabled": true, "name_en": "Tuvalu", "name_zh": "图瓦卢", "priority": "P3", "region": "大洋洲"}
+{"code": "TW", "enabled": true, "name_en": "Taiwan, China", "name_zh": "中国台湾", "priority": "P3", "region": "东亚"}
+{"code": "TZ", "enabled": true, "name_en": "Tanzania", "name_zh": "坦桑尼亚", "priority": "P3", "region": "非洲"}
+{"code": "UA", "enabled": true, "name_en": "Ukraine", "name_zh": "乌克兰", "priority": "P3", "region": "欧洲"}
+{"code": "UG", "enabled": true, "name_en": "Uganda", "name_zh": "乌干达", "priority": "P3", "region": "非洲"}
+{"code": "US", "enabled": true, "name_en": "United States", "name_zh": "美国", "priority": "P1", "region": "美洲"}
+{"code": "UY", "enabled": true, "name_en": "Uruguay", "name_zh": "乌拉圭", "priority": "P3", "region": "美洲"}
+{"code": "UZ", "enabled": true, "name_en": "Uzbekistan", "name_zh": "乌兹别克斯坦", "priority": "P3", "region": "中亚"}
+{"code": "VA", "enabled": true, "name_en": "Holy See", "name_zh": "梵蒂冈", "priority": "P3", "region": "欧洲"}
+{"code": "VC", "enabled": true, "name_en": "Saint Vincent and the Grenadines", "name_zh": "圣文森特和格林纳丁斯", "priority": "P3", "region": "美洲"}
+{"code": "VE", "enabled": true, "name_en": "Venezuela", "name_zh": "委内瑞拉", "priority": "P3", "region": "美洲"}
+{"code": "VN", "enabled": true, "name_en": "Vietnam", "name_zh": "越南", "priority": "P2", "region": "东南亚"}
+{"code": "VU", "enabled": true, "name_en": "Vanuatu", "name_zh": "瓦努阿图", "priority": "P3", "region": "大洋洲"}
+{"code": "WS", "enabled": true, "name_en": "Samoa", "name_zh": "萨摩亚", "priority": "P3", "region": "大洋洲"}
+{"code": "XK", "enabled": true, "name_en": "Kosovo", "name_zh": "科索沃", "priority": "P3", "region": "欧洲"}
+{"code": "YE", "enabled": true, "name_en": "Yemen", "name_zh": "也门", "priority": "P3", "region": "中东"}
+{"code": "ZA", "enabled": true, "name_en": "South Africa", "name_zh": "南非", "priority": "P3", "region": "非洲"}
+{"code": "ZM", "enabled": true, "name_en": "Zambia", "name_zh": "赞比亚", "priority": "P3", "region": "非洲"}
+{"code": "ZW", "enabled": true, "name_en": "Zimbabwe", "name_zh": "津巴布韦", "priority": "P3", "region": "非洲"}

@@ -1,0 +1,10 @@
+{"category": "cloud_desktop", "code": "cloud_desktop", "description": null, "enabled": true, "name_en": "Cloud Desktop", "name_zh": "云桌面"}
+{"category": "enterprise_router", "code": "enterprise_router", "description": null, "enabled": true, "name_en": "Enterprise Router", "name_zh": "企业级路由器"}
+{"category": "firewall_utm", "code": "firewall_utm", "description": null, "enabled": true, "name_en": "Firewall / UTM", "name_zh": "防火墙/UTM"}
+{"category": "home_router", "code": "home_router", "description": null, "enabled": true, "name_en": "Home/Consumer Router", "name_zh": "家用路由器"}
+{"category": "industrial_gateway", "code": "industrial_gateway", "description": null, "enabled": true, "name_en": "Industrial Gateway", "name_zh": "工业网关"}
+{"category": "sd_wan", "code": "sd_wan", "description": null, "enabled": true, "name_en": "SD-WAN", "name_zh": "SD-WAN"}
+{"category": "security_gateway", "code": "security_gateway", "description": null, "enabled": true, "name_en": "Network Security Gateway", "name_zh": "网络安全网关"}
+{"category": "software", "code": "software", "description": null, "enabled": true, "name_en": "Software", "name_zh": "软件"}
+{"category": "switch", "code": "switch", "description": null, "enabled": true, "name_en": "Network Switch", "name_zh": "网络交换机"}
+{"category": "wireless_ap", "code": "wireless_ap", "description": null, "enabled": true, "name_en": "Wireless Access Point", "name_zh": "无线AP"}
