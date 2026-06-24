@@ -1,18 +1,20 @@
 # 网安合规助手
 
-面向海外网络设备业务的官方证据驱动合规平台。
+这是一个面向海外网络设备业务的网安合规知识库和自动化运营系统。
 
-系统目标是持续建设“全球网络安全法规、认证、标准、官方证据、规格要求”的内部知识库，并支持后台查询、地图看板、合规问答、Excel 报告和飞书推送。正式数据必须基于官方正文页、官方 PDF、官方公报、监管机构或标准机构来源；AI 只用于辅助解析本地官方文件、提取规格和基于已核验切片问答，不允许 AI 联网摘要直接进入正式知识库。
+它做的事情比较明确：持续收集全球网络安全相关法规、认证、标准和官方证据，沉淀成可查询的知识库；同时支持地图看板、后台审核、合规问答、规格提取、Excel 报告和飞书推送。
 
-## 仓库权限
+这个项目最重要的原则是：正式数据必须有官方来源。法规、认证和标准只有在拿到官方正文页、官方 PDF、官方公报、监管机构或标准机构页面后，才会进入正式库。AI 可以辅助解析文件、整理规格和回答问题，但不能把联网摘要直接写成正式结论。
 
-当前 GitHub 仓库如果是 `Private`，不是任何人都能直接 pull。只有以下用户能拉取：
+## 获取代码
 
-- 仓库 owner。
-- 被添加为 collaborator 的 GitHub 账号。
-- 拥有可读权限的 deploy key、Personal Access Token 或组织权限的账号。
+这个仓库如果是公开状态，直接 clone 即可：
 
-如果希望任何人都能拉取，需要在 GitHub 仓库 `Settings -> General -> Danger Zone -> Change repository visibility` 中改为 `Public`。
+```bash
+git clone https://github.com/iamyourhang/cybersec-compliance.git
+```
+
+如果你把它改成私有仓库，只需要给实际使用的人加 GitHub collaborator，或者给服务器配置只读 Deploy Key。普通使用者只需要读权限；生产环境的 API Key、COS 密钥、飞书 Webhook 都放在各自服务器的 `.env` 里，不需要也不应该提交到仓库。
 
 ## 核心链路
 
@@ -59,7 +61,9 @@ cybersec-compliance/
 
 ## 部署说明
 
-本项目可部署为一套完整服务：FastAPI 后台、Vue 前端、PostgreSQL/pgvector 数据库、调度器、飞书推送、COS 工件存储和内置 AI 通道。仓库不包含真实 `.env`、API Key、COS 密钥、飞书 Webhook 或生产私有日志，部署者需要自行配置。
+部署后会得到一套完整服务：FastAPI 后台、Vue 前端、PostgreSQL/pgvector 数据库、调度器、飞书推送、COS 工件存储和内置 AI 通道。
+
+仓库里只放代码、迁移脚本和脱敏公共数据包。真实 `.env`、API Key、COS 密钥、飞书 Webhook、运行日志和私有生产数据都需要部署者自己配置。
 
 ### 1. 环境要求
 
@@ -94,7 +98,7 @@ sudo git clone https://github.com/iamyourhang/cybersec-compliance.git /opt/cyber
 cd /opt/cybersec-compliance
 ```
 
-如果仓库是私有仓库，请先确认你的 GitHub 账号已被添加为 collaborator；如果是公开仓库，任何人都可以只读 clone/pull。
+公开仓库可以直接拉取；私有仓库需要先确认当前 GitHub 账号有读权限。
 
 ### 3. 配置 Python 环境
 
