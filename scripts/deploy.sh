@@ -58,7 +58,7 @@ else
         --name "$PG_CONTAINER" \
         --restart unless-stopped \
         -e POSTGRES_PASSWORD="$PG_PASSWORD" \
-        -p 5432:5432 \
+        -p 127.0.0.1:5432:5432 \
         -v cybersec_pgdata:/var/lib/postgresql/data \
         ankane/pgvector:latest
     info "等待 PostgreSQL 启动..."
@@ -119,14 +119,7 @@ fi
 
 # ---- Step 7: 数据库 Schema + 种子数据 ----
 info "Step 7: 初始化数据库 Schema..."
-# 直接通过 Docker exec 执行 SQL
-docker cp database/migrations/V1__init_schema.sql "$PG_CONTAINER":/tmp/
-docker exec "$PG_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" \
-    -f /tmp/V1__init_schema.sql
-
-docker cp database/seeds/V2__seed_data.sql "$PG_CONTAINER":/tmp/
-docker exec "$PG_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" \
-    -f /tmp/V2__seed_data.sql
+python scripts/init_db.py --migrate-only --seed
 
 info "✅ 数据库 Schema + 种子数据完成"
 

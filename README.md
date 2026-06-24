@@ -57,26 +57,46 @@ cybersec-compliance/
 └── tests/                 # 单元和接口测试
 ```
 
-## 环境要求
+## 部署说明
 
+本项目可部署为一套完整服务：FastAPI 后台、Vue 前端、PostgreSQL/pgvector 数据库、调度器、飞书推送、COS 工件存储和内置 AI 通道。仓库不包含真实 `.env`、API Key、COS 密钥、飞书 Webhook 或生产私有日志，部署者需要自行配置。
+
+### 1. 环境要求
+
+推荐环境：
+
+- Ubuntu 22.04/24.04 或其他 Linux 服务器。
 - Python 3.11 或以上。
 - Node.js 18 或以上。
-- PostgreSQL 14 或以上。
-- 建议安装 PostgreSQL 扩展：`vector`，用于 RAG 向量检索。
-- 可选：腾讯云 COS、飞书机器人、OpenAI 兼容 LLM 网关。
+- PostgreSQL 14 或以上，并启用 `pgvector`。
+- 可选：Docker，用于快速启动 PostgreSQL/pgvector。
+- 可选：Nginx，用于 HTTPS 和反向代理。
 
-## 快速启动
+外部服务：
 
-### 1. 拉取代码
+- AI 网关：任一 OpenAI 兼容接口，例如 UniAPI、OpenAI、DashScope、DeepSeek 等。
+- Embedding 网关：OpenAI 兼容 embedding 接口，默认维度 `1536`。
+- 腾讯云 COS：用于存放法规 PDF/HTML 工件和 Excel 报告。
+- 飞书机器人 Webhook：用于发送日报、周报和告警。
+
+### 2. 拉取代码
 
 ```bash
 git clone https://github.com/iamyourhang/cybersec-compliance.git
 cd cybersec-compliance
 ```
 
-如果仓库是私有仓库，请先确认你的 GitHub 账号已被添加为 collaborator。
+如果要按 systemd 示例部署到固定目录，建议放到 `/opt/cybersec-compliance`：
 
-### 2. 配置 Python 环境
+```bash
+sudo mkdir -p /opt
+sudo git clone https://github.com/iamyourhang/cybersec-compliance.git /opt/cybersec-compliance
+cd /opt/cybersec-compliance
+```
+
+如果仓库是私有仓库，请先确认你的 GitHub 账号已被添加为 collaborator；如果是公开仓库，任何人都可以只读 clone/pull。
+
+### 3. 配置 Python 环境
 
 ```bash
 python3 -m venv .venv
@@ -84,13 +104,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. 配置环境变量
+### 4. 配置环境变量
 
 ```bash
 cp config/.env.example config/.env
+nano config/.env
 ```
 
-然后编辑 `config/.env`，至少配置：
+至少配置数据库、管理员账号和 JWT 密钥：
 
 ```dotenv
 DB_HOST=localhost
@@ -107,15 +128,15 @@ ADMIN_JWT_SECRET=change_me_to_a_long_random_string
 ADMIN_PORT=8080
 ```
 
-如果需要 AI 问答、解析、规格提取，再配置以下任一 OpenAI 兼容通道：
+如果需要 AI 问答、解析、规格提取，再配置 OpenAI 兼容通道：
 
 ```dotenv
-UNIAPI_API_KEY=
-UNIAPI_BASE_URL=https://your-openai-compatible-gateway/v1
-UNIAPI_MODEL=
+UNIAPI_API_KEY=your_key
+UNIAPI_BASE_URL=https://your-openai-compatible-gateway/
+UNIAPI_MODEL=your_model
 
-EMBEDDING_API_KEY=
-EMBEDDING_BASE_URL=https://your-openai-compatible-gateway/v1
+EMBEDDING_API_KEY=your_embedding_key
+EMBEDDING_BASE_URL=https://your-embedding-gateway/
 EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_DIMENSIONS=1536
 ```
@@ -133,9 +154,24 @@ COS_REGION=
 COS_REPORT_PREFIX=reports/
 ```
 
+生成 `LLM_ROUTER_SECRET`：
+
+```bash
+python - <<'PY'
+from cryptography.fernet import Fernet
+print(Fernet.generate_key().decode())
+PY
+```
+
+把输出写入：
+
+```dotenv
+LLM_ROUTER_SECRET=上一步生成的值
+```
+
 不要提交真实 `config/.env`。仓库只保留 `config/.env.example`。
 
-### 4. 初始化数据库
+### 5. 初始化数据库
 
 如果本机没有 PostgreSQL，推荐先用 Docker 启动一个带 `pgvector` 的本地数据库：
 
@@ -167,7 +203,15 @@ python scripts/init_db.py --superuser postgres --superpass postgres --seed
 python scripts/init_db.py --migrate-only
 ```
 
-### 5. 导入公共 verified 数据包
+如果你有自己的 SQL 或 dump 数据包，可以在迁移完成后导入：
+
+```bash
+psql "$DB_DSN" -f data.sql
+# 或
+pg_restore --dbname "$DB_DSN" backup.dump
+```
+
+### 6. 导入公共 verified 数据包
 
 仓库自带 `data/public/` 公共数据包，来自生产库的脱敏 verified-only 快照，包含：
 
@@ -201,25 +245,48 @@ python scripts/import_public_data.py --dir data/public
 译文：11866
 ```
 
-### 6. 启动后端
+### 7. 构建前端
+
+生产模式下 FastAPI 会直接服务 `admin/dist`。首次部署建议先构建：
 
 ```bash
+cd admin/frontend-vue
+npm ci
+npm run build
+cd ../..
+```
+
+构建产物会输出到 `admin/dist`。
+
+### 8. 本地启动验证
+
+```bash
+source .venv/bin/activate
 uvicorn admin.api.main:app --host 0.0.0.0 --port 8080
+```
+
+另开一个终端启动调度器：
+
+```bash
+source .venv/bin/activate
+python scheduler/main.py
 ```
 
 访问：
 
 ```text
-http://localhost:8080/
+http://<server-ip>:8080/
+http://<server-ip>:8080/screen
+http://<server-ip>:8080/health
 ```
 
-### 7. 前端开发模式
+### 9. 前端开发模式
 
-生产模式下 FastAPI 会直接服务 `admin/dist`。如需前端开发：
+如需前端开发：
 
 ```bash
 cd admin/frontend-vue
-npm install
+npm ci
 npm run dev
 ```
 
@@ -231,6 +298,70 @@ npm run build
 ```
 
 构建产物会输出到 `admin/dist`。`admin/dist` 属于构建产物，默认不提交。
+
+### 10. systemd 部署
+
+调度器服务模板在：
+
+```text
+scripts/cybersec-compliance.service
+```
+
+安装调度器服务：
+
+```bash
+sudo cp scripts/cybersec-compliance.service /etc/systemd/system/cybersec-compliance.service
+sudo systemctl daemon-reload
+sudo systemctl enable cybersec-compliance
+sudo systemctl start cybersec-compliance
+sudo journalctl -u cybersec-compliance -f
+```
+
+后台 API 可新增一个 systemd 服务：
+
+```bash
+sudo tee /etc/systemd/system/cybersec-admin.service >/dev/null <<'EOF'
+[Unit]
+Description=网安合规助手管理后台
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/cybersec-compliance
+Environment=PYTHONPATH=/opt/cybersec-compliance
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/cybersec-compliance/.venv/bin/python -m uvicorn admin.api.main:app --host 0.0.0.0 --port 8080 --workers 2
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable cybersec-admin
+sudo systemctl start cybersec-admin
+sudo journalctl -u cybersec-admin -f
+```
+
+### 11. 一键部署脚本
+
+Ubuntu 服务器可以使用：
+
+```bash
+sudo bash scripts/deploy.sh
+```
+
+脚本会安装系统依赖、启动 PostgreSQL/pgvector、创建 Python 虚拟环境、初始化数据库并注册调度器服务。执行后仍需要编辑：
+
+```bash
+nano /opt/cybersec-compliance/config/.env
+```
+
+填入 AI、Embedding、COS、飞书和管理员密码后，再启动服务。
 
 ## 后台功能入口
 

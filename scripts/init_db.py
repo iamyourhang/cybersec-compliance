@@ -40,51 +40,16 @@ MIGRATIONS_DIR = BASE_DIR / "database" / "migrations"
 SEEDS_DIR = BASE_DIR / "database" / "seeds"
 
 
-def migration_version(sql_file: Path) -> int:
-    """Return numeric migration version from names like V12__name.sql."""
-    match = re.match(r"V(\d+)__", sql_file.name)
-    if not match:
-        raise ValueError(f"迁移文件命名不合法: {sql_file.name}")
-    return int(match.group(1))
+def sort_versioned_sql_files(sql_files: list[Path]) -> list[Path]:
+    """按 V<number>__*.sql 的数字版本排序，避免 V10 排在 V1 前面。"""
 
+    def version(path: Path) -> int:
+        match = re.match(r"V(\d+)__", path.name)
+        if not match:
+            return 10**9
+        return int(match.group(1))
 
-def ensure_migration_table(conn: psycopg2.extensions.connection) -> None:
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS schema_migrations (
-                version    INTEGER PRIMARY KEY,
-                filename   TEXT NOT NULL,
-                applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-            )
-            """
-        )
-    conn.commit()
-
-
-def has_existing_schema(conn: psycopg2.extensions.connection) -> bool:
-    with conn.cursor() as cur:
-        cur.execute("SELECT to_regclass('public.compliance_knowledge') IS NOT NULL")
-        return bool(cur.fetchone()[0])
-
-
-def baseline_existing_migrations(
-    conn: psycopg2.extensions.connection,
-    sql_files: list[Path],
-) -> None:
-    """Mark current migrations as applied for legacy databases without tracking."""
-    with conn.cursor() as cur:
-        for sql_file in sql_files:
-            cur.execute(
-                """
-                INSERT INTO schema_migrations (version, filename)
-                VALUES (%s, %s)
-                ON CONFLICT (version) DO NOTHING
-                """,
-                (migration_version(sql_file), sql_file.name),
-            )
-    conn.commit()
-    logger.info("ℹ️  已为现有数据库建立迁移基线，共 %s 个版本", len(sql_files))
+    return sorted(sql_files, key=lambda path: (version(path), path.name))
 
 
 def create_database_and_user(
@@ -142,31 +107,6 @@ def create_database_and_user(
     conn.close()
 
 
-def install_database_extensions(
-    superuser: str,
-    superpass: str,
-    db_host: str,
-    db_port: int,
-    db_name: str,
-) -> None:
-    """Install extensions that require elevated privileges before app migrations."""
-    conn = psycopg2.connect(
-        host=db_host,
-        port=db_port,
-        user=superuser,
-        password=superpass,
-        dbname=db_name,
-    )
-    conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
-    with conn.cursor() as cur:
-        for extension in ("uuid-ossp", "pgcrypto", "pg_trgm", "vector"):
-            cur.execute(f'CREATE EXTENSION IF NOT EXISTS "{extension}"')
-            logger.info("✅ 数据库扩展已就绪: %s", extension)
-
-    conn.close()
-
-
 def execute_sql_file(
     conn: psycopg2.extensions.connection,
     sql_file: Path,
@@ -182,48 +122,22 @@ def execute_sql_file(
 
 def run_migrations(db_dsn: str) -> None:
     """按版本顺序执行迁移文件"""
-    sql_files = sorted(MIGRATIONS_DIR.glob("V*.sql"), key=migration_version)
+    sql_files = sort_versioned_sql_files(list(MIGRATIONS_DIR.glob("V*.sql")))
     if not sql_files:
         logger.warning("未找到迁移文件: %s", MIGRATIONS_DIR)
         return
 
     conn = psycopg2.connect(dsn=db_dsn, options="-c timezone=UTC")
     try:
-        ensure_migration_table(conn)
-
-        with conn.cursor() as cur:
-            cur.execute("SELECT version FROM schema_migrations")
-            applied = {row[0] for row in cur.fetchall()}
-
-        if not applied and has_existing_schema(conn):
-            baseline_existing_migrations(conn, sql_files)
-            applied = {migration_version(sql_file) for sql_file in sql_files}
-
         for sql_file in sql_files:
-            version = migration_version(sql_file)
-            if version in applied:
-                logger.info("⏭️  跳过已应用迁移: %s", sql_file.name)
-                continue
             execute_sql_file(conn, sql_file)
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    INSERT INTO schema_migrations (version, filename)
-                    VALUES (%s, %s)
-                    ON CONFLICT (version) DO UPDATE SET
-                        filename = EXCLUDED.filename,
-                        applied_at = NOW()
-                    """,
-                    (version, sql_file.name),
-                )
-            conn.commit()
     finally:
         conn.close()
 
 
 def run_seeds(db_dsn: str) -> None:
     """执行种子数据文件"""
-    sql_files = sorted(SEEDS_DIR.glob("V*.sql"))
+    sql_files = sort_versioned_sql_files(list(SEEDS_DIR.glob("V*.sql")))
     if not sql_files:
         logger.warning("未找到种子数据文件: %s", SEEDS_DIR)
         return
@@ -267,13 +181,6 @@ def main() -> None:
             db_name=db.name,
             db_user=db.user,
             db_password=db.password,
-        )
-        install_database_extensions(
-            superuser=args.superuser,
-            superpass=superpass,
-            db_host=db.host,
-            db_port=db.port,
-            db_name=db.name,
         )
 
     # Step 2: 执行迁移
