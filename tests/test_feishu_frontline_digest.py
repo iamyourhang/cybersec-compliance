@@ -210,6 +210,7 @@ def test_feishu_ai_discovery_report_card_links_full_table(monkeypatch):
     assert "动态参考" in text
     assert "未审核前不作为正式结论" not in text
     assert "原始线索" not in text
+    assert "field_set" not in text
     assert "通过硬校验" not in text
     assert "拒绝" not in text
     assert "待下载工件" not in text

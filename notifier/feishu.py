@@ -236,7 +236,7 @@ class FeishuNotifier:
                     ),
                 },
             },
-            {"tag": "field_set", "fields": fields},
+            {"tag": "div", "fields": fields},
         ]
 
         if report_url:
