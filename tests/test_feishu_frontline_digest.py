@@ -148,13 +148,6 @@ def test_feishu_frontline_digest_card_formats_sources_verified_and_windows(monke
     assert "统计范围" not in text
     assert "AI 已联网搜索" not in text
     assert "通过官方域名/主题硬校验" not in text
-    assert "未审核前不作为正式结论" not in text
-    assert "原始线索" not in text
-    assert "通过硬校验" not in text
-    assert "拒绝" not in text
-    assert "待下载工件" not in text
-    assert "新发现官方候选" not in text
-    assert "系统抓取，待核验" not in text
     assert "Example Cybersecurity Regulation" in text
     assert "今日已验证入库（1条）" in text
     assert "官方源监测（1条）" in text
@@ -178,6 +171,50 @@ def test_feishu_frontline_digest_card_formats_sources_verified_and_windows(monke
     assert "RAG 或规格库" not in text
     assert "6000个电子交易系统获得信任标识（原文：6,000 systems for e-transactions receive a 'trust mark' label）" in text
     assert "6,000 systems for e-transactions receive a 'trust mark' label" in text
+
+
+def test_feishu_ai_discovery_report_card_links_full_table(monkeypatch):
+    captured = {}
+    monkeypatch.setattr(
+        feishu_module.requests,
+        "Session",
+        lambda: type("S", (), {"headers": {}, "post": lambda self, *args, **kwargs: None})(),
+        raising=False,
+    )
+    notifier = FeishuNotifier(webhook_url="https://example.test/webhook")
+
+    def fake_send(payload):
+        captured["payload"] = payload
+        return True
+
+    monkeypatch.setattr(notifier, "_send", fake_send)
+
+    ok = notifier.send_ai_discovery_report_card(
+        candidate_count=12,
+        accepted_count=8,
+        rejected_count=3,
+        reference_count=1,
+        report_row_count=9,
+        report_url="https://cos.example/ai_discovery_20260601.xlsx",
+        generated_at="2026-06-01 00:35",
+    )
+
+    assert ok is True
+    payload = captured["payload"]
+    assert payload["msg_type"] == "interactive"
+    text = str(payload)
+    assert "每月新法规/认证发现报告" in text
+    assert "下载完整发现表格" in text
+    assert "https://cos.example/ai_discovery_20260601.xlsx" in text
+    assert "待核验候选" in text
+    assert "动态参考" in text
+    assert "未审核前不作为正式结论" not in text
+    assert "原始线索" not in text
+    assert "通过硬校验" not in text
+    assert "拒绝" not in text
+    assert "待下载工件" not in text
+    assert "新发现官方候选" not in text
+    assert "系统抓取，待核验" not in text
 
 
 def test_weekly_frontline_digest_uses_weekly_copy_and_richer_limits(monkeypatch):

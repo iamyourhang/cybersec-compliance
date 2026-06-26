@@ -1,6 +1,7 @@
 import sys
 import types
 from datetime import timedelta
+from types import SimpleNamespace
 
 import scheduler.main as scheduler_main
 from database import repository as repository_module
@@ -374,6 +375,89 @@ def test_job_monthly_ai_discovery_uses_validated_web_search_service(monkeypatch)
         "queries_per_country": 6,
         "validation_mode": "ai",
     }
+
+
+def test_job_monthly_ai_discovery_pushes_report_table_to_feishu(monkeypatch, tmp_path):
+    captured = {"notifier": {}, "uploaded": {}}
+
+    class _FakeDiscoveryService:
+        def run(self, **kwargs):
+            return {
+                "run_id": "run-1",
+                "status": "success",
+                "candidate_count": 3,
+                "accepted_count": 2,
+                "rejected_count": 1,
+                "reference_count": 1,
+            }
+
+    class _FakeNotifier:
+        def send_ai_discovery_report_card(self, **kwargs):
+            captured["notifier"].update(kwargs)
+            return True
+
+    def fake_writer(rows, output_path):
+        captured["written_rows"] = rows
+        output_path.write_bytes(b"xlsx")
+        return output_path
+
+    monkeypatch.setattr(
+        "collector.discovery.service.get_ai_discovery_service",
+        lambda: _FakeDiscoveryService(),
+    )
+    monkeypatch.setattr(
+        scheduler_main,
+        "_collect_monthly_ai_discovery_report_rows",
+        lambda run_id=None, limit=5000: [
+            {
+                "country_code": "EU",
+                "country_name": "欧盟",
+                "entry_type": "regulation",
+                "source_status": "candidate",
+                "title": "Cyber Resilience Act delegated act",
+                "source_url": "https://eur-lex.europa.eu/example",
+            },
+            {
+                "country_code": "SG",
+                "country_name": "新加坡",
+                "entry_type": "certification",
+                "source_status": "reference",
+                "title": "Cybersecurity label update",
+                "source_url": "https://www.csa.gov.sg/example",
+            },
+        ],
+        raising=False,
+    )
+    monkeypatch.setattr(
+        scheduler_main,
+        "_write_ai_discovery_report_excel",
+        fake_writer,
+        raising=False,
+    )
+    monkeypatch.setattr(
+        scheduler_main,
+        "_upload_to_cos",
+        lambda local_path, filename, settings: captured["uploaded"].update(
+            {"local_path": local_path, "filename": filename}
+        )
+        or f"https://cos.example/{filename}",
+    )
+    monkeypatch.setattr(
+        scheduler_main,
+        "get_settings",
+        lambda: SimpleNamespace(cos=SimpleNamespace(secret_id="configured")),
+    )
+    monkeypatch.setattr("notifier.feishu.get_notifier", lambda: _FakeNotifier())
+
+    result = scheduler_main.job_monthly_ai_discovery(limit_countries=12)
+
+    assert result["report_sent"] is True
+    assert result["report_row_count"] == 2
+    assert result["report_cos_url"].startswith("https://cos.example/ai_discovery_")
+    assert captured["uploaded"]["filename"].startswith("ai_discovery_")
+    assert captured["notifier"]["report_url"] == result["report_cos_url"]
+    assert captured["notifier"]["candidate_count"] == 3
+    assert captured["notifier"]["accepted_count"] == 2
 
 
 def test_job_key_regulation_countdown_refresh_seeds_cra_milestones(monkeypatch):

@@ -12,6 +12,8 @@ import logging
 import signal
 import sys
 import json
+import os
+import tempfile
 from math import ceil
 from pathlib import Path
 from datetime import datetime, timezone
@@ -31,6 +33,8 @@ MONTHLY_AI_DISCOVERY_PRIORITIES = ["P1", "P2", "P3"]
 MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES = 320
 MONTHLY_AI_DISCOVERY_QUERIES_PER_COUNTRY = 6
 MONTHLY_AI_DISCOVERY_CRON = "30 0 1 * *"
+MONTHLY_AI_DISCOVERY_REPORT_LOOKBACK_DAYS = 31
+MONTHLY_AI_DISCOVERY_REPORT_LIMIT = 5000
 WEEKLY_FRONTLINE_DIGEST_CRON = "0 9 * * 1"
 WEEKLY_FRONTLINE_DIGEST_LOOKBACK_HOURS = 24 * 7
 WEEKLY_FRONTLINE_DIGEST_LIMIT = 30
@@ -265,6 +269,7 @@ def job_monthly_ai_discovery(limit_countries: int = MONTHLY_AI_DISCOVERY_LIMIT_C
             queries_per_country=MONTHLY_AI_DISCOVERY_QUERIES_PER_COUNTRY,
             validation_mode="ai",
         )
+        result.update(_send_monthly_ai_discovery_report(result))
         logger.info("⏰ [调度] 每月 AI 官方候选发现完成: %s", result)
         return result
     except Exception as exc:
@@ -276,6 +281,201 @@ def job_monthly_ai_discovery(limit_countries: int = MONTHLY_AI_DISCOVERY_LIMIT_C
             "rejected_count": 0,
             "error": str(exc),
         }
+
+
+def _send_monthly_ai_discovery_report(result: dict) -> dict:
+    """导出月度 AI 发现总表，并向飞书发送下载入口。"""
+    report_result = {
+        "report_sent": False,
+        "report_cos_url": None,
+        "report_file_name": None,
+        "report_row_count": 0,
+    }
+    tmp_path: Path | None = None
+    try:
+        from notifier.feishu import get_notifier
+
+        rows = _collect_monthly_ai_discovery_report_rows(
+            run_id=result.get("run_id"),
+            limit=MONTHLY_AI_DISCOVERY_REPORT_LIMIT,
+        )
+        report_result["report_row_count"] = len(rows)
+        generated_at = datetime.now(ZoneInfo("Asia/Shanghai"))
+        filename = f"ai_discovery_{generated_at.strftime('%Y%m%d_%H%M%S')}.xlsx"
+
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+        _write_ai_discovery_report_excel(rows, tmp_path)
+
+        settings = get_settings()
+        cos_url = None
+        if settings.cos.secret_id:
+            cos_url = _upload_to_cos(str(tmp_path), filename, settings)
+        report_result["report_cos_url"] = cos_url
+        report_result["report_file_name"] = filename
+
+        notifier = get_notifier()
+        if notifier:
+            report_result["report_sent"] = notifier.send_ai_discovery_report_card(
+                candidate_count=int(result.get("candidate_count") or 0),
+                accepted_count=int(result.get("accepted_count") or 0),
+                rejected_count=int(result.get("rejected_count") or 0),
+                reference_count=int(result.get("reference_count") or 0),
+                report_row_count=len(rows),
+                report_url=cos_url,
+                generated_at=generated_at.strftime("%Y-%m-%d %H:%M"),
+            )
+        return report_result
+    except Exception as exc:
+        logger.warning("每月 AI 发现报告生成/推送失败: %s", exc, exc_info=True)
+        report_result["report_error"] = str(exc)
+        return report_result
+    finally:
+        if tmp_path:
+            try:
+                os.unlink(tmp_path)
+            except FileNotFoundError:
+                pass
+
+
+def _collect_monthly_ai_discovery_report_rows(run_id: str | None = None, limit: int = MONTHLY_AI_DISCOVERY_REPORT_LIMIT) -> list[dict]:
+    """收集最近一次月度窗口内的 AI 官方发现记录。
+
+    source_records 暂未持久化 run_id，因此这里以最近 31 天被 AI discovery 创建或更新的记录作为月度总表。
+    """
+    with get_cursor() as cur:
+        cur.execute(
+            """
+            SELECT sr.id::TEXT AS id,
+                   sr.country_code,
+                   COALESCE(c.name_zh, sr.country_code) AS country_name,
+                   sr.title,
+                   sr.entry_type,
+                   sr.source_status,
+                   sr.source_url,
+                   sr.artifact_url,
+                   sr.published_date,
+                   sr.created_at,
+                   sr.updated_at,
+                   sr.source_payload,
+                   sa.download_status,
+                   sa.download_error
+            FROM source_records sr
+            LEFT JOIN countries c ON c.code = sr.country_code
+            LEFT JOIN source_artifacts sa ON sa.source_record_id = sr.id
+            WHERE sr.discovery_method = 'ai_weekly_discovery'
+              AND sr.updated_at >= NOW() - make_interval(days => %s)
+            ORDER BY sr.updated_at DESC, sr.created_at DESC
+            LIMIT %s
+            """,
+            (MONTHLY_AI_DISCOVERY_REPORT_LOOKBACK_DAYS, limit),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
+def _write_ai_discovery_report_excel(rows: list[dict], output_path: Path) -> Path:
+    """生成 AI 发现候选总表。"""
+    import openpyxl
+    from openpyxl.styles import Alignment, Font, PatternFill
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "AI发现候选"
+    headers = [
+        "国家/地区",
+        "国家代码",
+        "类型",
+        "状态",
+        "标题",
+        "中文标题",
+        "摘要/说明",
+        "官方原文链接",
+        "工件链接",
+        "发布日期",
+        "发现/更新时间",
+        "AI相关性理由",
+        "官方性理由",
+        "下载状态",
+        "下载错误",
+    ]
+    ws.append(headers)
+
+    for row in rows:
+        payload = _coerce_json_dict(row.get("source_payload"))
+        raw_candidate = _coerce_json_dict(payload.get("raw_candidate"))
+        ws.append([
+            row.get("country_name") or row.get("country_code") or "",
+            row.get("country_code") or "",
+            _entry_type_label(row.get("entry_type")),
+            _source_status_label(row.get("source_status")),
+            row.get("title") or "",
+            raw_candidate.get("title_zh") or raw_candidate.get("name_zh") or "",
+            raw_candidate.get("summary_zh") or raw_candidate.get("summary") or payload.get("ai_reason") or "",
+            row.get("source_url") or "",
+            row.get("artifact_url") or "",
+            _format_cell_date(row.get("published_date")),
+            _format_cell_date(row.get("updated_at") or row.get("created_at")),
+            payload.get("cyber_product_relevance_reason") or "",
+            payload.get("official_evidence_reason") or "",
+            row.get("download_status") or "",
+            row.get("download_error") or "",
+        ])
+
+    header_fill = PatternFill("solid", fgColor="0F172A")
+    header_font = Font(color="FFFFFF", bold=True)
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+    ws.freeze_panes = "A2"
+    ws.auto_filter.ref = ws.dimensions
+    widths = [16, 10, 14, 14, 34, 34, 52, 52, 52, 14, 18, 46, 46, 14, 36]
+    for idx, width in enumerate(widths, start=1):
+        ws.column_dimensions[chr(64 + idx)].width = width
+    for row_cells in ws.iter_rows(min_row=2):
+        for cell in row_cells:
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+    wb.save(output_path)
+    return output_path
+
+
+def _coerce_json_dict(value) -> dict:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str) and value.strip():
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+    return {}
+
+
+def _format_cell_date(value) -> str:
+    if not value:
+        return ""
+    if isinstance(value, datetime):
+        return value.astimezone(ZoneInfo("Asia/Shanghai")).strftime("%Y-%m-%d %H:%M")
+    return str(value)
+
+
+def _entry_type_label(value) -> str:
+    return {
+        "regulation": "法律法规",
+        "certification": "认证",
+        "standard": "标准",
+        "scheme": "认证方案",
+        "guideline": "指南",
+    }.get(str(value or ""), str(value or ""))
+
+
+def _source_status_label(value) -> str:
+    return {
+        "candidate": "待审核候选",
+        "validation_pending": "待AI/人工校验",
+        "reference": "动态参考",
+        "rejected": "已拒绝",
+    }.get(str(value or ""), str(value or ""))
 
 
 def job_weekly_ai_discovery(limit_countries: int = MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:

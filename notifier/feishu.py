@@ -204,6 +204,73 @@ class FeishuNotifier:
         }
         return self._send(payload)
 
+    def send_ai_discovery_report_card(
+        self,
+        candidate_count: int,
+        accepted_count: int,
+        rejected_count: int,
+        reference_count: int,
+        report_row_count: int,
+        report_url: Optional[str] = None,
+        generated_at: Optional[str] = None,
+    ) -> bool:
+        """发送每月 AI 发现候选总表通知。"""
+        fields = [
+            {"is_short": True, "text": {"tag": "lark_md", "content": f"**发现总数**\n{candidate_count}"}},
+            {"is_short": True, "text": {"tag": "lark_md", "content": f"**待核验候选**\n{accepted_count}"}},
+            {"is_short": True, "text": {"tag": "lark_md", "content": f"**动态参考**\n{reference_count}"}},
+            {"is_short": True, "text": {"tag": "lark_md", "content": f"**未采纳**\n{rejected_count}"}},
+            {"is_short": True, "text": {"tag": "lark_md", "content": f"**表格行数**\n{report_row_count}"}},
+        ]
+        if generated_at:
+            fields.append({"is_short": True, "text": {"tag": "lark_md", "content": f"**生成时间**\n{generated_at}"}})
+
+        elements: List[Dict[str, Any]] = [
+            {
+                "tag": "div",
+                "text": {
+                    "tag": "lark_md",
+                    "content": (
+                        "**本月 AI 联网发现已完成。**\n"
+                        "以下只作为待核验线索和官方动态参考；正式知识库、RAG 和导出仍只使用 verified 官方证据。"
+                    ),
+                },
+            },
+            {"tag": "field_set", "fields": fields},
+        ]
+
+        if report_url:
+            elements.extend([
+                {"tag": "hr"},
+                {
+                    "tag": "action",
+                    "actions": [{
+                        "tag": "button",
+                        "text": {"tag": "plain_text", "content": "下载完整发现表格"},
+                        "url": report_url,
+                        "type": "primary",
+                    }],
+                },
+            ])
+
+        elements.append({
+            "tag": "note",
+            "elements": [{"tag": "plain_text", "content": "网安合规助手 · AI 只发现候选，不自动写入 verified"}],
+        })
+
+        payload = {
+            "msg_type": "interactive",
+            "card": {
+                "config": {"wide_screen_mode": True},
+                "header": {
+                    "title": {"tag": "plain_text", "content": "每月新法规/认证发现报告"},
+                    "template": "blue",
+                },
+                "elements": elements,
+            },
+        }
+        return self._send(payload)
+
     def send_frontline_digest_card(
         self,
         new_sources: List[Dict],
