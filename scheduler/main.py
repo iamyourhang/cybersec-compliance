@@ -1,7 +1,8 @@
 """
 scheduler/main.py
 APScheduler 调度器主程序
-- 每天凌晨：关键法规倒计时刷新、AI 官方候选发现、官方源/原文/解析/规格/预警分层任务
+- 每天凌晨：关键法规倒计时刷新、官方源/原文/解析/规格/预警分层任务
+- 每周：AI 官方候选发现
 - 每两周：证据驱动完整闭环生成 Excel 并发送飞书
 """
 
@@ -26,9 +27,15 @@ from database.repository import ComplianceLifecycleRepository
 setup_logging(level="INFO")
 logger = logging.getLogger(__name__)
 BIWEEKLY_UPDATE_START = datetime(2026, 5, 4, 1, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
-DAILY_AI_DISCOVERY_PRIORITIES = ["P1", "P2", "P3"]
-DAILY_AI_DISCOVERY_LIMIT_COUNTRIES = 260
-DAILY_AI_DISCOVERY_QUERIES_PER_COUNTRY = 4
+WEEKLY_AI_DISCOVERY_PRIORITIES = ["P1", "P2", "P3"]
+WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES = 320
+WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY = 6
+WEEKLY_AI_DISCOVERY_CRON = "30 0 * * 1"
+
+# Backward-compatible aliases for manual callers and older tests/scripts.
+DAILY_AI_DISCOVERY_PRIORITIES = WEEKLY_AI_DISCOVERY_PRIORITIES
+DAILY_AI_DISCOVERY_LIMIT_COUNTRIES = WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES
+DAILY_AI_DISCOVERY_QUERIES_PER_COUNTRY = WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY
 
 
 def get_official_source_pipeline():
@@ -240,22 +247,22 @@ def job_key_regulation_countdown_refresh() -> dict:
         return {"status": "failed", "error": str(exc)}
 
 
-def job_daily_ai_discovery(limit_countries: int = DAILY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
-    """每日受控 AI 发现：只生成和校验官方候选 source_records，不直接 verified。"""
-    logger.info("⏰ [调度] 开始每日 AI 官方候选发现")
+def job_weekly_ai_discovery(limit_countries: int = WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
+    """每周受控 AI 发现：只生成和校验官方候选 source_records，不直接 verified。"""
+    logger.info("⏰ [调度] 开始每周 AI 官方候选发现")
     try:
         from collector.discovery.service import get_ai_discovery_service
 
         result = get_ai_discovery_service().run(
-            priorities=DAILY_AI_DISCOVERY_PRIORITIES,
+            priorities=WEEKLY_AI_DISCOVERY_PRIORITIES,
             limit_countries=limit_countries,
-            queries_per_country=DAILY_AI_DISCOVERY_QUERIES_PER_COUNTRY,
+            queries_per_country=WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY,
             validation_mode="ai",
         )
-        logger.info("⏰ [调度] 每日 AI 官方候选发现完成: %s", result)
+        logger.info("⏰ [调度] 每周 AI 官方候选发现完成: %s", result)
         return result
     except Exception as exc:
-        logger.error("⏰ [调度] 每日 AI 官方候选发现失败: %s", exc, exc_info=True)
+        logger.error("⏰ [调度] 每周 AI 官方候选发现失败: %s", exc, exc_info=True)
         return {
             "status": "failed",
             "candidate_count": 0,
@@ -265,9 +272,9 @@ def job_daily_ai_discovery(limit_countries: int = DAILY_AI_DISCOVERY_LIMIT_COUNT
         }
 
 
-def job_weekly_ai_discovery(limit_countries: int = 80) -> dict:
-    """Compatibility wrapper; the discovery cadence is now daily."""
-    return job_daily_ai_discovery(limit_countries=limit_countries)
+def job_daily_ai_discovery(limit_countries: int = WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
+    """Compatibility wrapper; scheduled AI discovery now runs weekly."""
+    return job_weekly_ai_discovery(limit_countries=limit_countries)
 
 
 def job_weekly_compliance_update() -> dict:
@@ -276,7 +283,11 @@ def job_weekly_compliance_update() -> dict:
     from collector.workflow.evidence_pipeline import EvidencePipelineRunner
 
     registry_result = job_global_source_registry_refresh()
-    ai_discovery_result = job_daily_ai_discovery()
+    ai_discovery_result = {
+        "status": "scheduled_separately",
+        "cadence_days": 7,
+        "job_id": "weekly_ai_discovery",
+    }
     runner = EvidencePipelineRunner(
         source_sync=lambda priorities: get_official_source_pipeline().sync_country_priorities(list(priorities)),
         artifact_fetch=job_official_artifact_fetch,
@@ -307,17 +318,17 @@ def job_alert_scan() -> None:
 
 
 def job_frontline_feishu_digest() -> dict:
-    """今日网安合规早报：新发现官方候选/正式入库/生效窗口飞书通报。"""
-    logger.info("⏰ [调度] 开始今日网安合规早报")
+    """手动生成网安合规摘要；默认不再每日自动推送。"""
+    logger.info("⏰ [手动] 开始网安合规摘要")
     try:
         from notifier.alert_scanner import AlertScanner
         scanner = AlertScanner()
         sent = scanner.scan_frontline_digest(lookback_hours=_hours_since_local_midnight())
         result = {"sent": bool(sent), "count": sent}
-        logger.info("⏰ [调度] 今日网安合规早报完成: %s", result)
+        logger.info("⏰ [手动] 网安合规摘要完成: %s", result)
         return result
     except Exception as e:
-        logger.error("⏰ [调度] 今日网安合规早报失败: %s", e, exc_info=True)
+        logger.error("⏰ [手动] 网安合规摘要失败: %s", e, exc_info=True)
         raise
 
 
@@ -526,12 +537,12 @@ def build_scheduler() -> BlockingScheduler:
         misfire_grace_time=3600,
     )
 
-    # AI 发现：每天凌晨0点30，只产生官方候选线索和待审核证据，不直接写正式库
+    # AI 发现：每周一凌晨0点30，只产生官方候选线索和待审核证据，不直接写正式库
     scheduler.add_job(
-        job_daily_ai_discovery,
-        CronTrigger.from_crontab("30 0 * * *", timezone="Asia/Shanghai"),
-        id="daily_ai_discovery",
-        name="每日AI官方候选发现",
+        job_weekly_ai_discovery,
+        CronTrigger.from_crontab(WEEKLY_AI_DISCOVERY_CRON, timezone="Asia/Shanghai"),
+        id="weekly_ai_discovery",
+        name="每周AI官方候选发现",
         max_instances=1,
         misfire_grace_time=7200,
     )
@@ -582,16 +593,6 @@ def build_scheduler() -> BlockingScheduler:
         CronTrigger.from_crontab("0 4 * * *", timezone="Asia/Shanghai"),
         id="alert_scan",
         name="预警扫描",
-        max_instances=1,
-        misfire_grace_time=3600,
-    )
-
-    # 今日网安合规早报：每天上午9点，面向飞书群同步新发现、正式入库和30/90/180/360天生效窗口
-    scheduler.add_job(
-        job_frontline_feishu_digest,
-        CronTrigger.from_crontab("0 9 * * *", timezone="Asia/Shanghai"),
-        id="frontline_feishu_digest",
-        name="今日网安合规早报",
         max_instances=1,
         misfire_grace_time=3600,
     )
