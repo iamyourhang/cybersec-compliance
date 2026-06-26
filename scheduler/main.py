@@ -31,6 +31,9 @@ WEEKLY_AI_DISCOVERY_PRIORITIES = ["P1", "P2", "P3"]
 WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES = 320
 WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY = 6
 WEEKLY_AI_DISCOVERY_CRON = "30 0 * * 1"
+WEEKLY_FRONTLINE_DIGEST_CRON = "0 9 * * 1"
+WEEKLY_FRONTLINE_DIGEST_LOOKBACK_HOURS = 24 * 7
+WEEKLY_FRONTLINE_DIGEST_LIMIT = 30
 
 # Backward-compatible aliases for manual callers and older tests/scripts.
 DAILY_AI_DISCOVERY_PRIORITIES = WEEKLY_AI_DISCOVERY_PRIORITIES
@@ -332,6 +335,24 @@ def job_frontline_feishu_digest() -> dict:
         raise
 
 
+def job_weekly_frontline_feishu_digest() -> dict:
+    """每周网安合规动态：汇总最近7天线索、入库和适用节点后推送飞书。"""
+    logger.info("⏰ [调度] 开始每周网安合规动态")
+    try:
+        from notifier.alert_scanner import AlertScanner
+        scanner = AlertScanner()
+        sent = scanner.scan_frontline_digest(
+            lookback_hours=WEEKLY_FRONTLINE_DIGEST_LOOKBACK_HOURS,
+            limit=WEEKLY_FRONTLINE_DIGEST_LIMIT,
+        )
+        result = {"sent": bool(sent), "count": sent}
+        logger.info("⏰ [调度] 每周网安合规动态完成: %s", result)
+        return result
+    except Exception as e:
+        logger.error("⏰ [调度] 每周网安合规动态失败: %s", e, exc_info=True)
+        raise
+
+
 def _hours_since_local_midnight(now: datetime | None = None) -> int:
     now = now or datetime.now(ZoneInfo("Asia/Shanghai"))
     local_now = now.astimezone(ZoneInfo("Asia/Shanghai"))
@@ -593,6 +614,16 @@ def build_scheduler() -> BlockingScheduler:
         CronTrigger.from_crontab("0 4 * * *", timezone="Asia/Shanghai"),
         id="alert_scan",
         name="预警扫描",
+        max_instances=1,
+        misfire_grace_time=3600,
+    )
+
+    # 每周合规动态：每周一上午9点，汇总最近7天新增线索、正式入库和生效节点
+    scheduler.add_job(
+        job_weekly_frontline_feishu_digest,
+        CronTrigger.from_crontab(WEEKLY_FRONTLINE_DIGEST_CRON, timezone="Asia/Shanghai"),
+        id="weekly_frontline_feishu_digest",
+        name="每周网安合规动态",
         max_instances=1,
         misfire_grace_time=3600,
     )

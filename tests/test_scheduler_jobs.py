@@ -263,7 +263,7 @@ def test_build_scheduler_runs_full_update_every_two_weeks(monkeypatch):
     assert job.trigger.interval.days == 14
 
 
-def test_build_scheduler_does_not_send_frontline_digest_daily(monkeypatch):
+def test_build_scheduler_sends_frontline_digest_weekly(monkeypatch):
     jobs = {}
 
     class _FakeJob:
@@ -311,9 +311,12 @@ def test_build_scheduler_does_not_send_frontline_digest_daily(monkeypatch):
         monkeypatch.setitem(sys.modules, module_name, module)
 
     scheduler = scheduler_main.build_scheduler()
-    job = scheduler.get_job("frontline_feishu_digest")
+    daily_job = scheduler.get_job("frontline_feishu_digest")
+    weekly_job = scheduler.get_job("weekly_frontline_feishu_digest")
 
-    assert job is None
+    assert daily_job is None
+    assert weekly_job.name == "每周网安合规动态"
+    assert weekly_job.trigger.args == ("0 9 * * 1",)
 
 
 def test_job_frontline_feishu_digest_uses_today_ai_collection_window(monkeypatch):
@@ -331,6 +334,22 @@ def test_job_frontline_feishu_digest_uses_today_ai_collection_window(monkeypatch
 
     assert result == {"sent": True, "count": 1}
     assert captured == {"lookback_hours": 9}
+
+
+def test_job_weekly_frontline_feishu_digest_uses_7_day_window_and_larger_limit(monkeypatch):
+    captured = {}
+
+    class _FakeScanner:
+        def scan_frontline_digest(self, **kwargs):
+            captured.update(kwargs)
+            return 1
+
+    monkeypatch.setattr(alert_scanner_module, "AlertScanner", lambda: _FakeScanner())
+
+    result = scheduler_main.job_weekly_frontline_feishu_digest()
+
+    assert result == {"sent": True, "count": 1}
+    assert captured == {"lookback_hours": 24 * 7, "limit": 30}
 
 
 def test_job_weekly_ai_discovery_uses_validated_web_search_service(monkeypatch):
