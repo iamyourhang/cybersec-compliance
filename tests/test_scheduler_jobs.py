@@ -408,7 +408,8 @@ def test_job_monthly_ai_discovery_pushes_report_table_to_feishu(monkeypatch, tmp
     monkeypatch.setattr(
         scheduler_main,
         "_collect_monthly_ai_discovery_report_rows",
-        lambda run_id=None, limit=5000: [
+        lambda run_id=None, limit=None: captured.update({"report_limit": limit})
+        or [
             {
                 "country_code": "EU",
                 "country_name": "欧盟",
@@ -455,6 +456,7 @@ def test_job_monthly_ai_discovery_pushes_report_table_to_feishu(monkeypatch, tmp
     assert result["report_row_count"] == 2
     assert result["report_cos_url"].startswith("https://cos.example/ai_discovery_")
     assert captured["uploaded"]["filename"].startswith("ai_discovery_")
+    assert captured["report_limit"] is None
     assert captured["notifier"]["report_url"] == result["report_cos_url"]
     assert captured["notifier"]["candidate_count"] == 3
     assert captured["notifier"]["accepted_count"] == 2

@@ -34,7 +34,7 @@ MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES = 320
 MONTHLY_AI_DISCOVERY_QUERIES_PER_COUNTRY = 6
 MONTHLY_AI_DISCOVERY_CRON = "30 0 1 * *"
 MONTHLY_AI_DISCOVERY_REPORT_LOOKBACK_DAYS = 31
-MONTHLY_AI_DISCOVERY_REPORT_LIMIT = 5000
+MONTHLY_AI_DISCOVERY_REPORT_LIMIT = None
 WEEKLY_FRONTLINE_DIGEST_CRON = "0 9 * * 1"
 WEEKLY_FRONTLINE_DIGEST_LOOKBACK_HOURS = 24 * 7
 WEEKLY_FRONTLINE_DIGEST_LIMIT = 30
@@ -338,14 +338,19 @@ def _send_monthly_ai_discovery_report(result: dict) -> dict:
                 pass
 
 
-def _collect_monthly_ai_discovery_report_rows(run_id: str | None = None, limit: int = MONTHLY_AI_DISCOVERY_REPORT_LIMIT) -> list[dict]:
+def _collect_monthly_ai_discovery_report_rows(run_id: str | None = None, limit: int | None = MONTHLY_AI_DISCOVERY_REPORT_LIMIT) -> list[dict]:
     """收集最近一次月度窗口内的 AI 官方发现记录。
 
     source_records 暂未持久化 run_id，因此这里以最近 31 天被 AI discovery 创建或更新的记录作为月度总表。
     """
+    limit_clause = ""
+    params: list = [MONTHLY_AI_DISCOVERY_REPORT_LOOKBACK_DAYS]
+    if limit is not None:
+        limit_clause = "LIMIT %s"
+        params.append(limit)
     with get_cursor() as cur:
         cur.execute(
-            """
+            f"""
             SELECT sr.id::TEXT AS id,
                    sr.country_code,
                    COALESCE(c.name_zh, sr.country_code) AS country_name,
@@ -366,9 +371,9 @@ def _collect_monthly_ai_discovery_report_rows(run_id: str | None = None, limit: 
             WHERE sr.discovery_method = 'ai_weekly_discovery'
               AND sr.updated_at >= NOW() - make_interval(days => %s)
             ORDER BY sr.updated_at DESC, sr.created_at DESC
-            LIMIT %s
+            {limit_clause}
             """,
-            (MONTHLY_AI_DISCOVERY_REPORT_LOOKBACK_DAYS, limit),
+            params,
         )
         return [dict(row) for row in cur.fetchall()]
 
