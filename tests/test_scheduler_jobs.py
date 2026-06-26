@@ -143,7 +143,7 @@ def test_weekly_compliance_update_runs_full_evidence_pipeline(monkeypatch):
 
     monkeypatch.setattr(scheduler_main, "get_official_source_pipeline", lambda: _FakePipeline())
     monkeypatch.setattr(scheduler_main, "job_global_source_registry_refresh", lambda: calls.append(("registry", None)) or {"coverage": {"total": 10}})
-    monkeypatch.setattr(scheduler_main, "job_weekly_ai_discovery", lambda limit_countries=scheduler_main.WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES: calls.append(("ai_discovery", limit_countries)) or {"accepted_count": 2})
+    monkeypatch.setattr(scheduler_main, "job_monthly_ai_discovery", lambda limit_countries=scheduler_main.MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES: calls.append(("ai_discovery", limit_countries)) or {"accepted_count": 2})
     monkeypatch.setattr(scheduler_main, "job_official_artifact_fetch", lambda limit=20: calls.append(("artifact", limit)))
     monkeypatch.setattr(scheduler_main, "job_candidate_verification", lambda limit=50: calls.append(("verify", limit)))
     monkeypatch.setattr(scheduler_main, "job_document_parse", lambda limit=10: calls.append(("parse", limit)))
@@ -166,7 +166,7 @@ def test_weekly_compliance_update_runs_full_evidence_pipeline(monkeypatch):
     assert result["source_collection"]["official_source_sync"]["candidate_count"] == 8
     assert result["source_collection"]["source_registry_refresh"]["coverage"]["total"] == 10
     assert result["source_collection"]["ai_discovery"]["status"] == "scheduled_separately"
-    assert result["source_collection"]["ai_discovery"]["cadence_days"] == 7
+    assert result["source_collection"]["ai_discovery"]["cadence_days"] == 30
     assert result["spec_output"]["generated"] == 1
 
 
@@ -352,7 +352,7 @@ def test_job_weekly_frontline_feishu_digest_uses_7_day_window_and_larger_limit(m
     assert captured == {"lookback_hours": 24 * 7, "limit": 30}
 
 
-def test_job_weekly_ai_discovery_uses_validated_web_search_service(monkeypatch):
+def test_job_monthly_ai_discovery_uses_validated_web_search_service(monkeypatch):
     captured = {}
 
     class _FakeDiscoveryService:
@@ -365,7 +365,7 @@ def test_job_weekly_ai_discovery_uses_validated_web_search_service(monkeypatch):
         lambda: _FakeDiscoveryService(),
     )
 
-    result = scheduler_main.job_weekly_ai_discovery(limit_countries=12)
+    result = scheduler_main.job_monthly_ai_discovery(limit_countries=12)
 
     assert result["accepted_count"] == 1
     assert captured == {
@@ -388,7 +388,7 @@ def test_job_key_regulation_countdown_refresh_seeds_cra_milestones(monkeypatch):
     assert result == {"cra": {"status": "seeded", "milestones": 4}}
 
 
-def test_build_scheduler_includes_weekly_ai_discovery(monkeypatch):
+def test_build_scheduler_includes_monthly_ai_discovery(monkeypatch):
     jobs = {}
 
     class _FakeJob:
@@ -436,10 +436,10 @@ def test_build_scheduler_includes_weekly_ai_discovery(monkeypatch):
         monkeypatch.setitem(sys.modules, module_name, module)
 
     scheduler = scheduler_main.build_scheduler()
-    job = scheduler.get_job("weekly_ai_discovery")
+    job = scheduler.get_job("monthly_ai_discovery")
 
-    assert job.name == "每周AI官方候选发现"
-    assert job.trigger.args == ("30 0 * * 1",)
+    assert job.name == "每月AI官方候选发现"
+    assert job.trigger.args == ("30 0 1 * *",)
 
 
 def test_build_scheduler_includes_key_regulation_countdown_refresh(monkeypatch):

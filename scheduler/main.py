@@ -27,18 +27,21 @@ from database.repository import ComplianceLifecycleRepository
 setup_logging(level="INFO")
 logger = logging.getLogger(__name__)
 BIWEEKLY_UPDATE_START = datetime(2026, 5, 4, 1, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
-WEEKLY_AI_DISCOVERY_PRIORITIES = ["P1", "P2", "P3"]
-WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES = 320
-WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY = 6
-WEEKLY_AI_DISCOVERY_CRON = "30 0 * * 1"
+MONTHLY_AI_DISCOVERY_PRIORITIES = ["P1", "P2", "P3"]
+MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES = 320
+MONTHLY_AI_DISCOVERY_QUERIES_PER_COUNTRY = 6
+MONTHLY_AI_DISCOVERY_CRON = "30 0 1 * *"
 WEEKLY_FRONTLINE_DIGEST_CRON = "0 9 * * 1"
 WEEKLY_FRONTLINE_DIGEST_LOOKBACK_HOURS = 24 * 7
 WEEKLY_FRONTLINE_DIGEST_LIMIT = 30
 
 # Backward-compatible aliases for manual callers and older tests/scripts.
-DAILY_AI_DISCOVERY_PRIORITIES = WEEKLY_AI_DISCOVERY_PRIORITIES
-DAILY_AI_DISCOVERY_LIMIT_COUNTRIES = WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES
-DAILY_AI_DISCOVERY_QUERIES_PER_COUNTRY = WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY
+WEEKLY_AI_DISCOVERY_PRIORITIES = MONTHLY_AI_DISCOVERY_PRIORITIES
+WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES = MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES
+WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY = MONTHLY_AI_DISCOVERY_QUERIES_PER_COUNTRY
+DAILY_AI_DISCOVERY_PRIORITIES = MONTHLY_AI_DISCOVERY_PRIORITIES
+DAILY_AI_DISCOVERY_LIMIT_COUNTRIES = MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES
+DAILY_AI_DISCOVERY_QUERIES_PER_COUNTRY = MONTHLY_AI_DISCOVERY_QUERIES_PER_COUNTRY
 
 
 def get_official_source_pipeline():
@@ -250,22 +253,22 @@ def job_key_regulation_countdown_refresh() -> dict:
         return {"status": "failed", "error": str(exc)}
 
 
-def job_weekly_ai_discovery(limit_countries: int = WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
-    """每周受控 AI 发现：只生成和校验官方候选 source_records，不直接 verified。"""
-    logger.info("⏰ [调度] 开始每周 AI 官方候选发现")
+def job_monthly_ai_discovery(limit_countries: int = MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
+    """每月受控 AI 发现：只生成和校验官方候选 source_records，不直接 verified。"""
+    logger.info("⏰ [调度] 开始每月 AI 官方候选发现")
     try:
         from collector.discovery.service import get_ai_discovery_service
 
         result = get_ai_discovery_service().run(
-            priorities=WEEKLY_AI_DISCOVERY_PRIORITIES,
+            priorities=MONTHLY_AI_DISCOVERY_PRIORITIES,
             limit_countries=limit_countries,
-            queries_per_country=WEEKLY_AI_DISCOVERY_QUERIES_PER_COUNTRY,
+            queries_per_country=MONTHLY_AI_DISCOVERY_QUERIES_PER_COUNTRY,
             validation_mode="ai",
         )
-        logger.info("⏰ [调度] 每周 AI 官方候选发现完成: %s", result)
+        logger.info("⏰ [调度] 每月 AI 官方候选发现完成: %s", result)
         return result
     except Exception as exc:
-        logger.error("⏰ [调度] 每周 AI 官方候选发现失败: %s", exc, exc_info=True)
+        logger.error("⏰ [调度] 每月 AI 官方候选发现失败: %s", exc, exc_info=True)
         return {
             "status": "failed",
             "candidate_count": 0,
@@ -275,9 +278,14 @@ def job_weekly_ai_discovery(limit_countries: int = WEEKLY_AI_DISCOVERY_LIMIT_COU
         }
 
 
-def job_daily_ai_discovery(limit_countries: int = WEEKLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
-    """Compatibility wrapper; scheduled AI discovery now runs weekly."""
-    return job_weekly_ai_discovery(limit_countries=limit_countries)
+def job_weekly_ai_discovery(limit_countries: int = MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
+    """Compatibility wrapper; scheduled AI discovery now runs monthly."""
+    return job_monthly_ai_discovery(limit_countries=limit_countries)
+
+
+def job_daily_ai_discovery(limit_countries: int = MONTHLY_AI_DISCOVERY_LIMIT_COUNTRIES) -> dict:
+    """Compatibility wrapper; scheduled AI discovery now runs monthly."""
+    return job_monthly_ai_discovery(limit_countries=limit_countries)
 
 
 def job_weekly_compliance_update() -> dict:
@@ -288,8 +296,8 @@ def job_weekly_compliance_update() -> dict:
     registry_result = job_global_source_registry_refresh()
     ai_discovery_result = {
         "status": "scheduled_separately",
-        "cadence_days": 7,
-        "job_id": "weekly_ai_discovery",
+        "cadence_days": 30,
+        "job_id": "monthly_ai_discovery",
     }
     runner = EvidencePipelineRunner(
         source_sync=lambda priorities: get_official_source_pipeline().sync_country_priorities(list(priorities)),
@@ -558,12 +566,12 @@ def build_scheduler() -> BlockingScheduler:
         misfire_grace_time=3600,
     )
 
-    # AI 发现：每周一凌晨0点30，只产生官方候选线索和待审核证据，不直接写正式库
+    # AI 发现：每月1日凌晨0点30，只产生官方候选线索和待审核证据，不直接写正式库
     scheduler.add_job(
-        job_weekly_ai_discovery,
-        CronTrigger.from_crontab(WEEKLY_AI_DISCOVERY_CRON, timezone="Asia/Shanghai"),
-        id="weekly_ai_discovery",
-        name="每周AI官方候选发现",
+        job_monthly_ai_discovery,
+        CronTrigger.from_crontab(MONTHLY_AI_DISCOVERY_CRON, timezone="Asia/Shanghai"),
+        id="monthly_ai_discovery",
+        name="每月AI官方候选发现",
         max_instances=1,
         misfire_grace_time=7200,
     )
