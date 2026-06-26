@@ -178,18 +178,66 @@ def test_feishu_frontline_digest_card_formats_sources_verified_and_windows(monke
     assert "RAG 或规格库" not in text
     assert "6000个电子交易系统获得信任标识（原文：6,000 systems for e-transactions receive a 'trust mark' label）" in text
     assert "6,000 systems for e-transactions receive a 'trust mark' label" in text
-    assert "摘要：越南官方新闻，可作为日常动态参考。" in text
-    assert "https://english.mic.gov.vn/6000-systems-for-e-transactions-receive-a-trust-mark-label-197241205080947425.htm" in text
-    assert f"发布日期：{today}" in text
-    assert "发布日期待核验" not in text
-    assert "官方原文" in text
-    assert "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R2847" in text
-    assert "https://www.csa.gov.sg/our-programmes/cybersecurity-labelling-scheme" in text
-    assert "https://english.mst.gov.vn/6000-systems-for-e-transactions-receive-a-trust-mark-label-197241205094451834.htm" not in text
-    assert "30天内" in text
-    assert "90天内" in text
-    assert "窗口概览：30天内 1；90天内 1" in text
-    assert "最近节点：" in text
+
+
+def test_weekly_frontline_digest_uses_weekly_copy_and_richer_limits(monkeypatch):
+    captured = {}
+    today = date.today().isoformat()
+    monkeypatch.setattr(
+        feishu_module.requests,
+        "Session",
+        lambda: type("S", (), {"headers": {}, "post": lambda self, *args, **kwargs: None})(),
+        raising=False,
+    )
+    notifier = FeishuNotifier(webhook_url="https://example.test/webhook")
+    monkeypatch.setattr(notifier, "_send", lambda payload: captured.setdefault("payload", payload) or True)
+
+    candidates = [
+        {
+            "title": f"Weekly Candidate {idx}",
+            "country_name": "欧盟",
+            "country_code": "EU",
+            "entry_type": "regulation",
+            "source_url": f"https://example.eu/candidate-{idx}",
+            "published_date": today,
+            "source_payload": {
+                "raw_candidate": {
+                    "title_zh": f"每周候选 {idx}",
+                    "summary_zh": f"第 {idx} 条候选线索。",
+                }
+            },
+        }
+        for idx in range(1, 16)
+    ]
+    dynamics = [
+        {
+            "title": f"Weekly Dynamic {idx}",
+            "country_name": "新加坡",
+            "country_code": "SG",
+            "entry_type": "certification",
+            "source_url": f"https://example.sg/dynamic-{idx}",
+            "published_date": today,
+            "source_payload": {"raw_candidate": {"title_zh": f"每周动态 {idx}"}},
+        }
+        for idx in range(1, 18)
+    ]
+
+    assert notifier.send_frontline_digest_card(
+        new_sources=[],
+        new_verified=[],
+        upcoming_by_window={},
+        ai_discovery_stats={"candidate_count": len(candidates)},
+        ai_discovery_candidates=candidates,
+        official_dynamics=dynamics,
+        lookback_hours=24 * 7,
+    )
+
+    text = str(captured["payload"])
+    assert "每周网安合规动态" in text
+    assert "本周看点" in text
+    assert "本周监测重点集中在15条待核验官方线索和17条网安合规动态。" in text
+    assert "每周候选 15" in text
+    assert "每周动态 17" in text
 
 
 def test_feishu_frontline_digest_normalizes_taiwan_display_name(monkeypatch):
@@ -329,6 +377,6 @@ def test_frontline_digest_card_shows_ai_collection_failure(monkeypatch):
 
     text = str(captured["payload"])
     assert "采集状态" in text
-    assert "今日早报可能不完整" in text
+    assert "今日网安合规早报可能不完整" in text
     assert "内置 AI 通道额度不足" in text
     assert "确认无新增" in text

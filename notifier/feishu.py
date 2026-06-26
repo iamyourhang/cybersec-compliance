@@ -214,7 +214,14 @@ class FeishuNotifier:
         official_dynamics: Optional[List[Dict[str, Any]]] = None,
         lookback_hours: int = 24,
     ) -> bool:
-        """发送今日网安合规早报：官方候选、动态参考、正式入库和未来适用节点。"""
+        """发送网安合规动态：官方候选、动态参考、正式入库和未来适用节点。"""
+        weekly_mode = lookback_hours >= 24 * 7
+        digest_title = "每周网安合规动态" if weekly_mode else "今日网安合规早报"
+        digest_period = "本周" if weekly_mode else "今日"
+        source_limit = 20 if weekly_mode else 8
+        candidate_limit = 20 if weekly_mode else 8
+        dynamic_limit = 30 if weekly_mode else 12
+        verified_limit = 20 if weekly_mode else 8
         recent_ai_candidates, historical_ai_candidates, unknown_date_ai_candidates = _split_ai_candidates_by_source_date(
             ai_discovery_candidates or []
         )
@@ -232,14 +239,15 @@ class FeishuNotifier:
             dynamics_count=dynamics_count,
             verified_count=verified_count,
             window_30_count=window_30_count,
+            period_label=digest_period,
         )
-        collection_status = _format_collection_status(ai_discovery_stats or {})
+        collection_status = _format_collection_status(ai_discovery_stats or {}, digest_label=digest_title)
         elements: List[Dict[str, Any]] = [
             {
                 "tag": "div",
                 "text": {
                     "tag": "lark_md",
-                    "content": f"**今日看点**\n{lead}",
+                    "content": f"**{digest_period}看点**\n{lead}",
                 },
             },
             {"tag": "hr"},
@@ -253,7 +261,7 @@ class FeishuNotifier:
             elements.append({"tag": "hr"})
 
         if new_sources:
-            lines = _format_grouped_candidate_lines(new_sources, limit=8)
+            lines = _format_grouped_candidate_lines(new_sources, limit=source_limit)
             elements.append({
                 "tag": "div",
                 "text": {"tag": "lark_md", "content": f"**🧭 官方源监测（{source_count}条）**\n" + lines},
@@ -261,7 +269,7 @@ class FeishuNotifier:
             elements.append({"tag": "hr"})
 
         if ai_discovery_stats and int(ai_discovery_stats.get("candidate_count") or 0) > 0:
-            candidate_block = _format_grouped_candidate_lines(display_ai_candidates, limit=8)
+            candidate_block = _format_grouped_candidate_lines(display_ai_candidates, limit=candidate_limit)
             if not candidate_block:
                 candidate_block = "• 暂无可展示的候选原文链接，请到后台候选列表查看。"
             content = (
@@ -275,7 +283,7 @@ class FeishuNotifier:
             elements.append({"tag": "hr"})
 
         if official_dynamics:
-            lines = _format_news_digest_lines(official_dynamics, limit=12)
+            lines = _format_news_digest_lines(official_dynamics, limit=dynamic_limit)
             elements.append({
                 "tag": "div",
                 "text": {
@@ -290,7 +298,7 @@ class FeishuNotifier:
 
         if new_verified:
             lines = []
-            for item in new_verified[:8]:
+            for item in new_verified[:verified_limit]:
                 country = _format_country_label(item)
                 mandatory = item.get("mandatory") or "未标注"
                 lines.append(
@@ -299,7 +307,7 @@ class FeishuNotifier:
                 )
             elements.append({
                 "tag": "div",
-                "text": {"tag": "lark_md", "content": f"**✅ 今日已验证入库（{verified_count}条）**\n" + "\n".join(lines)},
+                "text": {"tag": "lark_md", "content": f"**✅ {digest_period}已验证入库（{verified_count}条）**\n" + "\n".join(lines)},
             })
             elements.append({"tag": "hr"})
 
@@ -319,7 +327,7 @@ class FeishuNotifier:
             "card": {
                 "config": {"wide_screen_mode": True},
                 "header": {
-                    "title": {"tag": "plain_text", "content": "今日网安合规早报"},
+                    "title": {"tag": "plain_text", "content": digest_title},
                     "template": "turquoise",
                 },
                 "elements": elements,
@@ -534,6 +542,7 @@ def _format_frontline_digest_lead(
     dynamics_count: int,
     verified_count: int,
     window_30_count: int,
+    period_label: str = "今日",
 ) -> str:
     highlights: List[str] = []
     if candidate_count:
@@ -545,11 +554,11 @@ def _format_frontline_digest_lead(
 
     if highlights:
         if len(highlights) == 1:
-            lead = f"今日监测重点为{highlights[0]}。"
+            lead = f"{period_label}监测重点为{highlights[0]}。"
         else:
-            lead = f"今日监测重点集中在{'、'.join(highlights[:-1])}和{highlights[-1]}。"
+            lead = f"{period_label}监测重点集中在{'、'.join(highlights[:-1])}和{highlights[-1]}。"
     else:
-        lead = "今日暂未发现新的官方源、待核验线索或网安合规动态。"
+        lead = f"{period_label}暂未发现新的官方源、待核验线索或网安合规动态。"
 
     if verified_count:
         lead += f" 正式知识库新增{verified_count}条已验证入库记录。"
@@ -565,7 +574,7 @@ def _format_frontline_digest_lead(
     return lead
 
 
-def _format_collection_status(ai_discovery_stats: Dict[str, Any]) -> str:
+def _format_collection_status(ai_discovery_stats: Dict[str, Any], digest_label: str = "今日早报") -> str:
     latest_status = str(ai_discovery_stats.get("latest_status") or "").strip()
     failed_count = int(ai_discovery_stats.get("failed_run_count") or 0)
     if latest_status != "failed" and failed_count <= 0:
@@ -573,11 +582,11 @@ def _format_collection_status(ai_discovery_stats: Dict[str, Any]) -> str:
     error = _sanitize_collection_error(str(ai_discovery_stats.get("latest_error") or ""))
     lines = [
         "**⚠️ 采集状态**",
-        "• AI 官方源发现任务未完成，今日早报可能不完整；这不是“确认无新增”。",
+        f"• AI 官方源发现任务未完成，{digest_label}可能不完整；这不是“确认无新增”。",
     ]
     if error:
         lines.append(f"• 原因：{error}")
-    lines.append("• 处理：请检查内置 AI 通道额度/可用性，恢复后重新运行每日采集。")
+    lines.append("• 处理：请检查内置 AI 通道额度/可用性，恢复后重新运行采集。")
     return "\n".join(lines)
 
 
