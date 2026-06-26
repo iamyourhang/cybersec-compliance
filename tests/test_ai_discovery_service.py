@@ -10,6 +10,7 @@ from collector.discovery.service import (
     ResponsesWebSearchDiscoverySearcher,
     DiscoveryTarget,
     EvidenceValidator,
+    _normalize_date,
     is_vulnerability_advisory_not_compliance,
 )
 
@@ -60,6 +61,12 @@ def test_discovery_planner_adds_recency_window_and_multilingual_rotation():
     assert "published after" in query_text
     assert "France" in query_text
     assert "cybersécurité" in query_text or "certificación" in query_text or "الأمن السيبراني" in query_text
+
+
+def test_normalize_date_rejects_invalid_zero_day_values():
+    assert _normalize_date("2026-01-00") is None
+    assert _normalize_date("2023-09-00") is None
+    assert _normalize_date("updated on 2026-02-28") == "2026-02-28"
 
 
 def test_evidence_validator_rejects_official_but_non_cyber_product_topic():

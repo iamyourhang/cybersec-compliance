@@ -1222,9 +1222,20 @@ def _normalize_entry_type(value: Any) -> str:
 def _normalize_date(value: Any) -> Optional[str]:
     if not value:
         return None
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
     text = str(value).strip()
     match = re.search(r"\d{4}-\d{2}-\d{2}", text)
-    return match.group(0) if match else None
+    if not match:
+        return None
+    candidate = match.group(0)
+    try:
+        datetime.strptime(candidate, "%Y-%m-%d")
+    except ValueError:
+        return None
+    return candidate
 
 
 def _normalize_confidence(value: Any) -> Optional[float]:
